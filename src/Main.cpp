@@ -14,6 +14,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "LoadModel.h"
+#include "StellarObject.h"
 #include "Camera.h"
 #include "Skybox.h"
 #include "GLErrors.h"
@@ -22,12 +23,16 @@
 #define WIDTH 1500
 #define HEIGHT 800
 
+
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
 // must create as global, due to having to use callback for scroll wheel which only takes function pointer
 // (as oppposed to class function pointer)
 // it was between a global or a singleton, they're both bad... I guess I'd rather a global than a singleton xD
 Camera camera(WIDTH, HEIGHT, 45.f, 0.1f, 1000.f, glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+
+// global parameter for amount of days that will elapse per second of real time
+double daysPerSecond = 0.2f;
 
 int main()
 {
@@ -65,7 +70,9 @@ int main()
 	std::vector<std::unique_ptr<Mesh>> meshes;
 
 	// loads planet models
-	GLCall(loadModel("./resources/models/earth.obj", meshes));
+	loadPlanetModels("./resources/models/", meshes);
+
+	std::vector<StellarObject> celestialBodies = initStellarObjects(meshes);
 
 	// planet model matrix
 	glm::mat4 model;
@@ -88,7 +95,6 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		// background
-		//glClearColor(0.07f, 0.13f, 0.17f, 1.0f); // navy blue ish
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // black
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -98,9 +104,14 @@ int main()
 		curTime = glfwGetTime();
 		if (curTime - prevTime >= 1 / 60)
 		{
-			double timDiff = curTime - prevTime;
-			rotation += 0.105f;
+			double realTimeElapsed = curTime - prevTime;
 			prevTime = curTime;
+
+			// update each of the stellar object models for movement that occurred
+			for (auto& celestialBody : celestialBodies)
+			{
+				celestialBody.updateModel(realTimeElapsed * daysPerSecond);
+			}
 		}
 
 		// need to initilialize matrices
@@ -122,7 +133,15 @@ int main()
 		camera.exportToShader(defaultShader, "camMatrix");
 
 		// draw single planet currently
-		GLCall(meshes[0]->draw(defaultShader));
+		//GLCall(meshes[0]->draw(defaultShader));
+		for (auto& celestialBody : celestialBodies)
+		{
+			// export uniform for update model of the object to the GPU
+			celestialBody.exportToShader(defaultShader, "model");
+
+			// finally draw all the objects
+			celestialBody.draw(defaultShader);
+		}
 
 		// draw the skybox
 		skybox.draw(skyboxShader, camera);
@@ -140,7 +159,6 @@ int main()
 	glfwTerminate();
 	return 0;
 }
-
 
 // scroll callback for zooming in and out, cannot be part of class since must be function pointer
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)

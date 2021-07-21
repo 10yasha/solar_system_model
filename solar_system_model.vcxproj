@@ -527,7 +527,7 @@
     <ClInclude Include="Libraries\include\stb\stb_image.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\GLErrors.h" />
-    <ClInclude Include="src\Planet.h" />
+    <ClInclude Include="src\StellarObject.h" />
     <ClInclude Include="src\LoadModel.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Shader.h" />
@@ -549,7 +549,7 @@
     <ClCompile Include="src\LoadModel.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
-    <ClCompile Include="src\Planet.cpp" />
+    <ClCompile Include="src\StellarObject.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Skybox.cpp" />
   </ItemGroup>

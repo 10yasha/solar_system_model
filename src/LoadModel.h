@@ -19,6 +19,8 @@
 
 static std::string directory; // keep track of directory to find other files associated with .obj file
 
+void loadPlanetModels(std::string directory, std::vector<std::unique_ptr<Mesh>>& meshes);
+
 // main routine that will load meshes into a vector of unique pointers used to return the models
 void loadModel(std::string path, std::vector<std::unique_ptr<Mesh>>& meshes);
 

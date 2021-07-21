@@ -1,5 +1,28 @@
 #include "LoadModel.h"
 
+void loadPlanetModels(std::string directory, std::vector<std::unique_ptr<Mesh>>& meshes)
+{
+    // loads planet models
+    std::string modelPaths[9] =
+    {
+        directory + "sun.obj",
+        directory + "mercury.obj",
+        directory + "venus.obj",
+        directory + "earth.obj",
+        directory + "mars.obj",
+        directory + "jupiter.obj",
+        directory + "saturn.obj",
+        directory + "uranus.obj",
+        directory + "neptune.obj"
+    };
+
+    for (std::string modelPath : modelPaths)
+    {
+        loadModel(modelPath, meshes);
+    }
+}
+
+
 // main routine that will load meshes into a vector of unique pointers used to return the models
 void loadModel(std::string path, std::vector<std::unique_ptr<Mesh>>& meshes)
 {

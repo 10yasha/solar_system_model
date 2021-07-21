@@ -1143,7 +1143,7 @@
     <ClInclude Include="src\GLErrors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Planet.h">
+    <ClInclude Include="src\StellarObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Camera.h">
@@ -1199,7 +1199,7 @@
     <ClCompile Include="src\LoadModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Planet.cpp">
+    <ClCompile Include="src\StellarObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Camera.cpp">
