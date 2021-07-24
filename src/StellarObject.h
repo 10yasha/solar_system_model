@@ -21,11 +21,12 @@ class StellarObject
 public:
 	std::string m_name;
 	double m_axialTilt, m_rotationSpeed, m_radius;
+	glm::vec3 m_position;
 	glm::mat4 m_locMat;
 	double m_curRotation;
 	std::unique_ptr<Mesh> m_mesh;
 
-	StellarObject(std::string name, double axialTilt, double rotationSpeed, double size, glm::mat4 startLocation, std::unique_ptr<Mesh> mesh);
+	StellarObject(std::string name, double axialTilt, double rotationSpeed, double size, glm::vec3 startLocation, std::unique_ptr<Mesh> mesh);
 	~StellarObject();
 
 	// quick move constructor in header for now
@@ -35,6 +36,7 @@ public:
 		m_axialTilt = other.m_axialTilt;
 		m_rotationSpeed = other.m_rotationSpeed;
 		m_radius = other.m_radius;
+		m_position = other.m_position;
 		m_locMat = other.m_locMat;
 		m_curRotation = other.m_curRotation;
 		m_mesh = std::move(other.m_mesh);

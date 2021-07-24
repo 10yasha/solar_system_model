@@ -26,8 +26,9 @@ public:
 	int m_height;
 
 	// constant to control movement of camera
-	float m_speed = 0.01f;
+	float m_speed = 0.05f;
 	float m_sensitivity = 100.f;
+	float m_zoomSpeed = 10.f;
 
 	// prevents the camera from jumping around when first clicking
 	bool m_firstClick = true;

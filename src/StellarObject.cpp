@@ -7,17 +7,17 @@ std::vector<StellarObject> initStellarObjects(std::vector<std::unique_ptr<Mesh>>
 	std::vector<StellarObject> stellarObjects;
 
 	// axial tilt values according to https://en.wikipedia.org/wiki/Axial_tilt
-	std::tuple<std::string, double, double, double, glm::mat4> stellarObjectInfos[9] =
+	std::tuple<std::string, double, double, double, glm::vec3> stellarObjectInfos[9] =
 	{
-		std::make_tuple("sun", 7.25, 14.18, 696340, glm::translate(glm::mat4(1.0f), glm::vec3(500.0f, 0.0f, 0.0f))),
-		std::make_tuple("mercury", 0.03, 6.14, 2440, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f))),
-		std::make_tuple("venus", 2.64, -1.48, 6052, glm::translate(glm::mat4(1.0f), glm::vec3(-10.0f, 0.0f, 0.0f))),
-		std::make_tuple("earth", 23.44, 360.99, 6371, glm::translate(glm::mat4(1.0f), glm::vec3(-20.0f, 0.0f, 0.0f))),
-		std::make_tuple("mars", 25.19, 350.89, 3390, glm::translate(glm::mat4(1.0f), glm::vec3(-30.0f, 0.0f, 0.0f))),
-		std::make_tuple("jupiter", 3.13, 870.54, 69911, glm::translate(glm::mat4(1.0f), glm::vec3(-80.0f, 0.0f, 0.0f))),
-		std::make_tuple("saturn", 26.73, 810.79, 58232, glm::translate(glm::mat4(1.0f), glm::vec3(-160.0f, 0.0f, 0.0f))),
-		std::make_tuple("uranus", 82.23, -501.16, 25362, glm::translate(glm::mat4(1.0f), glm::vec3(-200.0f, 0.0f, 0.0f))),
-		std::make_tuple("neptune", 28.32, 536.31, 24622, glm::translate(glm::mat4(1.0f), glm::vec3(-240.0f, 0.0f, 0.0f)))
+		std::make_tuple("sun", 7.25, 14.18, 696340, glm::vec3(0.0f, 0.0f, 0.0f)),
+		std::make_tuple("mercury", 0.03, 6.14, 2440, glm::vec3(500.0f, 0.0f, 0.0f)),
+		std::make_tuple("venus", 2.64, -1.48, 6052, glm::vec3(510.0f, 0.0f, 0.0f)),
+		std::make_tuple("earth", 23.44, 360.99, 6371, glm::vec3(520.0f, 0.0f, 0.0f)),
+		std::make_tuple("mars", 25.19, 350.89, 3390, glm::vec3(530.0f, 0.0f, 0.0f)),
+		std::make_tuple("jupiter", 3.13, 870.54, 69911, glm::vec3(580.0f, 0.0f, 0.0f)),
+		std::make_tuple("saturn", 26.73, 810.79, 58232, glm::vec3(660.0f, 0.0f, 0.0f)),
+		std::make_tuple("uranus", 82.23, -501.16, 25362, glm::vec3(720.0f, 0.0f, 0.0f)),
+		std::make_tuple("neptune", 28.32, 536.31, 24622, glm::vec3(760.0f, 0.0f, 0.0f))
 	};
 
 	ASSERT(sizeof(stellarObjectInfos)/sizeof(stellarObjectInfos[0]) == meshes.size());
@@ -38,11 +38,12 @@ std::vector<StellarObject> initStellarObjects(std::vector<std::unique_ptr<Mesh>>
 }
 
 StellarObject::StellarObject(std::string name, double axialTilt, double rotationSpeed, double radius,
-	glm::mat4 startLocation, std::unique_ptr<Mesh> mesh)
+	glm::vec3 startLocation, std::unique_ptr<Mesh> mesh)
 	: m_name(name), m_axialTilt(axialTilt), m_rotationSpeed(rotationSpeed), m_radius(radius),
-	m_locMat(startLocation), m_mesh(std::move(mesh))
+	m_position(startLocation), m_mesh(std::move(mesh))
 {
 	m_curRotation = 0.f; // default value
+	m_locMat = glm::translate(glm::mat4(1.0f), startLocation);
 }
 
 StellarObject::~StellarObject()

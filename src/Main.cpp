@@ -29,7 +29,7 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 // must create as global, due to having to use callback for scroll wheel which only takes function pointer
 // (as oppposed to class function pointer)
 // it was between a global or a singleton, they're both bad... I guess I'd rather a global than a singleton xD
-Camera camera(WIDTH, HEIGHT, 45.f, 0.1f, 1000.f, glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+Camera camera(WIDTH, HEIGHT, 45.f, 0.1f, 1000.f, glm::vec3(500.0f, 0.0f, 20.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 
 // global parameter for amount of days that will elapse per second of real time
 double daysPerSecond = 0.2f;
@@ -45,10 +45,9 @@ int main()
 	// CORE profile -> only have the modern functions
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// setup window
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Solar System Model", nullptr, nullptr);
 	
-	if (window == nullptr) // In case fails to create
+	if (window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();

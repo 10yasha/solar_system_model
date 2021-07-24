@@ -9,7 +9,7 @@ Camera::Camera(int width, int height, float FOVdeg, float nearPlane, float farPl
 
 void Camera::zoom(double yoffset)
 {
-	m_position += float(yoffset) * m_orientation;
+	m_position += float(yoffset) * m_zoomSpeed * m_orientation;
 }
 
 void Camera::exportToShader(Shader& shader, const char* uniform)
