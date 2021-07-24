@@ -69,6 +69,8 @@ void StellarObject::updatePosition(double timeElapsed)
 
 void StellarObject::exportToShader(Shader& shader, const char* uniform)
 {
+	shader.bind();
+
 	// ROTATION //
 	glm::mat4 matRotation = glm::mat4(1.0f);
 

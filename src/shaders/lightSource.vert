@@ -11,8 +11,6 @@ out vec2 texCoord;
 uniform mat4 model;
 uniform mat4 camMatrix; // proj * view
 
-out vec3 Normal;
-out vec3 FragPosition;
 
 void main()
 {
@@ -21,10 +19,4 @@ void main()
 
 	// assigns texture coordinates to pass to the fragment shader
 	texCoord = texCoor;
-
-	FragPosition = vec3(model * vec4(position, 1.0f));
-	// FragPosition = position;
-
-	Normal = mat3(transpose(inverse(model))) * normal;
-	// Normal = normal;
 }

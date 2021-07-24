@@ -14,6 +14,7 @@ void Camera::zoom(double yoffset)
 
 void Camera::exportToShader(Shader& shader, const char* uniform)
 {
+	shader.bind();
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
 

@@ -1653,5 +1653,7 @@
     <None Include="src\shaders\default.vert" />
     <None Include="src\shaders\skybox.frag" />
     <None Include="src\shaders\skybox.vert" />
+    <None Include="src\shaders\lightSource.frag" />
+    <None Include="src\shaders\lightSource.vert" />
   </ItemGroup>
 </Project>

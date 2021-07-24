@@ -707,6 +707,8 @@
     <None Include="Libraries\lib\assimp-vc142-mtd.pdb" />
     <None Include="src\shaders\default.frag" />
     <None Include="src\shaders\default.vert" />
+    <None Include="src\shaders\lightSource.frag" />
+    <None Include="src\shaders\lightSource.vert" />
     <None Include="src\shaders\skybox.frag" />
     <None Include="src\shaders\skybox.vert" />
   </ItemGroup>

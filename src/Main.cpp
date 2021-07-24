@@ -64,6 +64,7 @@ int main()
 	// load shaders and link into one program
 	GLCall(Shader defaultShader("./src/shaders/default.vert", "./src/shaders/default.frag"));
 	GLCall(Shader skyboxShader("./src/shaders/skybox.vert", "./src/shaders/skybox.frag"));
+	GLCall(Shader lightSourceShader("./src/shaders/lightSource.vert", "./src/shaders/lightSource.frag"));
 	
 	// planets
 	std::vector<std::unique_ptr<Mesh>> meshes;
@@ -90,14 +91,16 @@ int main()
 	// necessary so depth in 3D models rendered properly
 	glEnable(GL_DEPTH_TEST);
 
+	// light information
+	glm::vec3 lightPosition(0.0f, 0.0f, 0.0f);
+	glm::vec4 lightColor(1.0f, 1.0f, 1.0f, 1.0f);
+
 	// main loop here
 	while (!glfwWindowShouldClose(window))
 	{
 		// background
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // black
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		defaultShader.bind();
 
 		// simple timer to do rotation
 		curTime = glfwGetTime();
@@ -113,33 +116,42 @@ int main()
 			}
 		}
 
-		// need to initilialize matrices
-		model = glm::mat4(1.0f);
-		/*view = glm::mat4(1.0f);*/
-
-		// calculate mvp to use
-		model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.f, 1.f, 0.f));
-		/*view = glm::translate(view, glm::vec3(0.0f, 0.0f, -10.0f));
-		proj = glm::perspective(glm::radians(45.0f), (float)WIDTH / HEIGHT, 0.1f, 100.f);*/
-
-		// send MVP matrices to the vertex shader
-		int modelLoc = glGetUniformLocation(defaultShader.m_ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
 		// Handles camera inputs
 		camera.getInputs(window);
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.exportToShader(defaultShader, "camMatrix");
+		camera.exportToShader(lightSourceShader, "camMatrix");
 
-		// draw single planet currently
-		//GLCall(meshes[0]->draw(defaultShader));
+		// draw the sun and all the planets
 		for (auto& celestialBody : celestialBodies)
 		{
-			// export uniform for update model of the object to the GPU
-			celestialBody.exportToShader(defaultShader, "model");
+			if (celestialBody.m_name == "sun")
+			{
+				// export uniform for update model of the object to the GPU
+				celestialBody.exportToShader(lightSourceShader, "model");
 
-			// finally draw all the objects
-			celestialBody.draw(defaultShader);
+				// glUniform4f(glGetUniformLocation(lightSourceShader.m_ID, "lightColor"),
+				//	lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+
+				// finally draw all the objects
+				celestialBody.draw(lightSourceShader);
+			}
+			else
+			{
+				// export uniform for update model of the object to the GPU
+				celestialBody.exportToShader(defaultShader, "model");
+
+				// glUniform4f(glGetUniformLocation(lightSourceShader.m_ID, "lightColor"),
+				//	lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+				glUniform3f(glGetUniformLocation(defaultShader.m_ID, "lightColor"),
+					lightColor.x, lightColor.y, lightColor.z);
+				glUniform3f(glGetUniformLocation(defaultShader.m_ID, "lightPosition"),
+					lightPosition.x, lightPosition.y, lightPosition.z);
+
+				// finally draw all the objects
+				celestialBody.draw(defaultShader);
+			}
 		}
 
 		// draw the skybox
