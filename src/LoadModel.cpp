@@ -70,7 +70,6 @@ static std::unique_ptr<Mesh> processMesh(aiMesh* mesh, const aiScene* scene)
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         Vertex vertex;
-        glm::vec3 vector;
 
         vertex.Position.x = mesh->mVertices[i].x;
         vertex.Position.y = mesh->mVertices[i].y;
@@ -81,7 +80,6 @@ static std::unique_ptr<Mesh> processMesh(aiMesh* mesh, const aiScene* scene)
         vertex.Normal.z = mesh->mNormals[i].z;
 
         if (mesh->mTextureCoords[0]) {
-            glm::vec2 vec;
             vertex.TexCoor.x = mesh->mTextureCoords[0][i].x;
             vertex.TexCoor.y = mesh->mTextureCoords[0][i].y;
         }

@@ -29,7 +29,9 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 // must create as global, due to having to use callback for scroll wheel which only takes function pointer
 // (as oppposed to class function pointer)
 // it was between a global or a singleton, they're both bad... I guess I'd rather a global than a singleton xD
-Camera camera(WIDTH, HEIGHT, 45.f, 0.1f, 1000.f, glm::vec3(500.0f, 0.0f, 20.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+Camera camera(WIDTH, HEIGHT, 45.f, 0.1f, 10000.f, glm::vec3(176.335f, 195.577f, 757.643f),
+	glm::vec3(-0.449704, -0.417709f, -0.789486f));
+
 
 // global parameter for amount of days that will elapse per second of real time
 double daysPerSecond = 0.2f;
@@ -74,11 +76,7 @@ int main()
 
 	std::vector<StellarObject> celestialBodies = initStellarObjects(meshes);
 
-	// planet model matrix
-	glm::mat4 model;
-
 	// variables to define rotation
-	float rotation = 0.f;
 	double prevTime = glfwGetTime();
 	double curTime;
 	
@@ -88,12 +86,15 @@ int main()
 	// set scrollCallback for the camera
 	glfwSetScrollCallback(window, scrollCallback);
 
-	// necessary so depth in 3D models rendered properly
-	glEnable(GL_DEPTH_TEST);
+	// whether objects will move in their orbit the sun
+	bool move = true;
 
 	// light information
 	glm::vec3 lightPosition(0.0f, 0.0f, 0.0f);
 	glm::vec4 lightColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+	// necessary so depth in 3D models rendered properly
+	glEnable(GL_DEPTH_TEST);
 
 	// main loop here
 	while (!glfwWindowShouldClose(window))
@@ -112,7 +113,15 @@ int main()
 			// update each of the stellar object models for movement that occurred
 			for (auto& celestialBody : celestialBodies)
 			{
-				celestialBody.updateModel(realTimeElapsed * daysPerSecond);
+				celestialBody.updateRotation(realTimeElapsed * daysPerSecond);
+
+				if (celestialBody.m_name != "sun")
+				{
+					if (move)
+					{
+						celestialBody.updatePosition(realTimeElapsed * daysPerSecond);
+					}
+				}
 			}
 		}
 

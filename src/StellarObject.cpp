@@ -7,18 +7,56 @@ std::vector<StellarObject> initStellarObjects(std::vector<std::unique_ptr<Mesh>>
 	std::vector<StellarObject> stellarObjects;
 
 	// axial tilt values according to https://en.wikipedia.org/wiki/Axial_tilt
-	std::tuple<std::string, double, double, double, glm::vec3> stellarObjectInfos[9] =
+	// length of year according to https://spaceplace.nasa.gov/years-on-other-planets/en/
+	std::tuple<std::string, double, double, double, double> stellarObjectInfos[9] =
+	/*{
+		std::make_tuple("sun", 7.25, 14.18, 696340, 0),
+		std::make_tuple("mercury", 0.03, 6.14, 2440, 88),
+		std::make_tuple("venus", 2.64, -1.48, 6052, 225),
+		std::make_tuple("earth", 23.44, 360.99, 6371, 365),
+		std::make_tuple("mars", 25.19, 350.89, 3390, 687),
+		std::make_tuple("jupiter", 3.13, 870.54, 69911, 4333),
+		std::make_tuple("saturn", 26.73, 810.79, 58232, 10759),
+		std::make_tuple("uranus", 82.23, -501.16, 25362, 30687),
+		std::make_tuple("neptune", 28.32, 536.31, 24622, 60190)
+	};*/
 	{
-		std::make_tuple("sun", 7.25, 14.18, 696340, glm::vec3(0.0f, 0.0f, 0.0f)),
-		std::make_tuple("mercury", 0.03, 6.14, 2440, glm::vec3(500.0f, 0.0f, 0.0f)),
-		std::make_tuple("venus", 2.64, -1.48, 6052, glm::vec3(510.0f, 0.0f, 0.0f)),
-		std::make_tuple("earth", 23.44, 360.99, 6371, glm::vec3(520.0f, 0.0f, 0.0f)),
-		std::make_tuple("mars", 25.19, 350.89, 3390, glm::vec3(530.0f, 0.0f, 0.0f)),
-		std::make_tuple("jupiter", 3.13, 870.54, 69911, glm::vec3(580.0f, 0.0f, 0.0f)),
-		std::make_tuple("saturn", 26.73, 810.79, 58232, glm::vec3(660.0f, 0.0f, 0.0f)),
-		std::make_tuple("uranus", 82.23, -501.16, 25362, glm::vec3(720.0f, 0.0f, 0.0f)),
-		std::make_tuple("neptune", 28.32, 536.31, 24622, glm::vec3(760.0f, 0.0f, 0.0f))
+		std::make_tuple("sun", 7.25, 14.18, 696340, 0),
+		std::make_tuple("mercury", 0.03, 6.14, 2440, 3),
+		std::make_tuple("venus", 2.64, -1.48, 6052, 5),
+		std::make_tuple("earth", 23.44, 360.99, 6371, 6),
+		std::make_tuple("mars", 25.19, 350.89, 3390, 7),
+		std::make_tuple("jupiter", 3.13, 870.54, 69911, 9),
+		std::make_tuple("saturn", 26.73, 810.79, 58232, 11),
+		std::make_tuple("uranus", 82.23, -501.16, 25362, 13),
+		std::make_tuple("neptune", 28.32, 536.31, 24622, 15)
 	};
+
+	// a and b values for parametric equation of an ellipse given here
+	// http://www.ijsrp.org/research-paper-0516/ijsrp-p5328.pdf
+	std::tuple<double, double> ellipseParams[9] =
+	{
+		std::make_tuple(0.0f, 0.0f),
+		std::make_tuple(300.0f, 300.0f),
+		std::make_tuple(310.0f, 310.0f),
+		std::make_tuple(320.0f, 320.0f),
+		std::make_tuple(330.0f, 330.0f),
+		std::make_tuple(420.0f, 420.0f),
+		std::make_tuple(500.0f, 500.0f),
+		std::make_tuple(560.0f, 560.0f),
+		std::make_tuple(600.0f, 600.0f)
+	};
+	/*{
+		std::make_tuple(0.0f, 0.0f),
+		std::make_tuple(57.9f, 56.6703f),
+		std::make_tuple(108.f, 107.9974f),
+		std::make_tuple(150.f, 149.9783f),
+		std::make_tuple(228.f, 226.9905f),
+		std::make_tuple(779.f, 778.0643f),
+		std::make_tuple(1430.f, 1488.1149f),
+		std::make_tuple(2870.f, 2866.9619f),
+		std::make_tuple(4500.f, 4499.7277f)
+	};*/
 
 	ASSERT(sizeof(stellarObjectInfos)/sizeof(stellarObjectInfos[0]) == meshes.size());
 
@@ -28,8 +66,10 @@ std::vector<StellarObject> initStellarObjects(std::vector<std::unique_ptr<Mesh>>
 			std::get<0>(stellarObjectInfos[i]), // name
 			std::get<1>(stellarObjectInfos[i]), // axialTilt
 			std::get<2>(stellarObjectInfos[i]), // rotationSpeed
-			std::get<3>(stellarObjectInfos[i]), // radius
-			std::get<4>(stellarObjectInfos[i]), // startLocation
+			std::get<3>(stellarObjectInfos[i]), // object radius
+			std::get<4>(stellarObjectInfos[i]), // length of year in days
+			std::get<0>(ellipseParams[i]), // ellipse param a
+			std::get<1>(ellipseParams[i]), // ellipse param b
 			std::move(meshes[i])
 		));
 	}
@@ -37,13 +77,18 @@ std::vector<StellarObject> initStellarObjects(std::vector<std::unique_ptr<Mesh>>
 	return stellarObjects;
 }
 
-StellarObject::StellarObject(std::string name, double axialTilt, double rotationSpeed, double radius,
-	glm::vec3 startLocation, std::unique_ptr<Mesh> mesh)
-	: m_name(name), m_axialTilt(axialTilt), m_rotationSpeed(rotationSpeed), m_radius(radius),
-	m_position(startLocation), m_mesh(std::move(mesh))
+StellarObject::StellarObject(std::string name, double axialTilt, double rotationSpeed, double objectRadius,
+	double lengthOfYear, double a, double b, std::unique_ptr<Mesh> mesh)
+	: m_name(name), m_axialTilt(axialTilt), m_rotationSpeed(rotationSpeed), m_objectRadius(objectRadius),
+	m_lengthOfYear(lengthOfYear), m_a(a), m_b(b), m_mesh(std::move(mesh))
 {
-	m_curRotation = 0.f; // default value
-	m_locMat = glm::translate(glm::mat4(1.0f), startLocation);
+	m_curObjectRotation = 0.f; // default value
+	m_curOrbitalRotation = 0.f; // default value
+
+	// starting position
+	float x = a * sin(PI * 2 * m_curOrbitalRotation / 360);
+	float y = b * cos(PI * 2 * m_curOrbitalRotation / 360);
+	m_locMat = glm::translate(glm::mat4(1), glm::vec3(x, 0.0f, y));
 }
 
 StellarObject::~StellarObject()
@@ -59,12 +104,17 @@ void StellarObject::updateModel(double timeElapsed)
 
 void StellarObject::updateRotation(double timeElapsed)
 {
-	m_curRotation += timeElapsed * m_rotationSpeed;
+	m_curObjectRotation += timeElapsed * m_rotationSpeed;
 }
 
 void StellarObject::updatePosition(double timeElapsed)
 {
-	return;
+	m_curOrbitalRotation += timeElapsed / m_lengthOfYear;
+
+	// TRANSLATION //
+	float x = m_a * sin(PI * 2 * m_curOrbitalRotation);
+	float y = m_b * cos(PI * 2 * m_curOrbitalRotation);
+	m_locMat = glm::translate(glm::mat4(1), glm::vec3(x, 0.0f, y));
 }
 
 void StellarObject::exportToShader(Shader& shader, const char* uniform)
@@ -78,13 +128,12 @@ void StellarObject::exportToShader(Shader& shader, const char* uniform)
 	matRotation = glm::rotate(matRotation, glm::radians(float(m_axialTilt)), glm::vec3(0.f, 0.f, 1.f));
 
 	// current rotation, m_rotation is constantly being updated
-	matRotation = glm::rotate(matRotation, glm::radians(float(m_curRotation)), glm::vec3(0.f, 1.f, 0.f));
-
+	matRotation = glm::rotate(matRotation, glm::radians(float(m_curObjectRotation)), glm::vec3(0.f, 1.f, 0.f));
 
 	// SCALE //
 	glm::mat4 matScale = glm::mat4(1.0f);
 
-	float scaleFactor = float(m_radius) / EARTH_RADIUS;
+	float scaleFactor = float(m_objectRadius) / EARTH_RADIUS;
 	matScale = glm::scale(matScale, glm::vec3(scaleFactor, scaleFactor, scaleFactor));
 
 	// exports the model matrix to the vertex shader

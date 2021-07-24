@@ -11,6 +11,8 @@
 #include "Mesh.h"
 #include "GLErrors.h"
 
+#define PI 3.1415926
+
 class StellarObject;
 
 // creates all the planet objects with parameters like axial tilt/duration of single rotation
@@ -20,13 +22,15 @@ class StellarObject
 {
 public:
 	std::string m_name;
-	double m_axialTilt, m_rotationSpeed, m_radius;
-	glm::vec3 m_position;
+	double m_axialTilt, m_rotationSpeed, m_objectRadius, m_lengthOfYear;
+	double m_a, m_b;
 	glm::mat4 m_locMat;
-	double m_curRotation;
+	double m_curObjectRotation;
+	double m_curOrbitalRotation;
 	std::unique_ptr<Mesh> m_mesh;
 
-	StellarObject(std::string name, double axialTilt, double rotationSpeed, double size, glm::vec3 startLocation, std::unique_ptr<Mesh> mesh);
+	StellarObject(std::string name, double axialTilt, double rotationSpeed, double objectRadius,
+		double lengthOfYear, double a, double b, std::unique_ptr<Mesh> mesh);
 	~StellarObject();
 
 	// quick move constructor in header for now
@@ -35,10 +39,13 @@ public:
 		m_name = other.m_name;
 		m_axialTilt = other.m_axialTilt;
 		m_rotationSpeed = other.m_rotationSpeed;
-		m_radius = other.m_radius;
-		m_position = other.m_position;
+		m_objectRadius = other.m_objectRadius;
+		m_lengthOfYear = other.m_lengthOfYear;
+		m_a = other.m_a;
+		m_b = other.m_b;
 		m_locMat = other.m_locMat;
-		m_curRotation = other.m_curRotation;
+		m_curObjectRotation = other.m_curObjectRotation;
+		m_curOrbitalRotation = other.m_curOrbitalRotation;
 		m_mesh = std::move(other.m_mesh);
 	}
 

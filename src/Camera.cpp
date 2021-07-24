@@ -26,6 +26,8 @@ void Camera::exportToShader(Shader& shader, const char* uniform)
 
 	// Exports the camera matrix to the Vertex Shader
 	glUniformMatrix4fv(glGetUniformLocation(shader.m_ID, uniform), 1, GL_FALSE, glm::value_ptr(projection * view));
+	/*std::cout << m_position.x << " " << m_position.y << " " << m_position.z << " " << 
+		m_orientation.x << " " << m_orientation.y << " " << m_orientation.z << " " << std::endl;*/
 }
 
 
