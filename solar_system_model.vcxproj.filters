@@ -1655,5 +1655,7 @@
     <None Include="src\shaders\skybox.vert" />
     <None Include="src\shaders\lightSource.frag" />
     <None Include="src\shaders\lightSource.vert" />
+    <None Include="src\shaders\asteroid.vert" />
+    <None Include="src\shaders\asteroid.frag" />
   </ItemGroup>
 </Project>

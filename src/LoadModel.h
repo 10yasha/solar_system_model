@@ -16,10 +16,13 @@
 #include <assimp/postprocess.h>
 
 #include "mesh.h"
+#include "GLErrors.h"
 
 static std::string directory; // keep track of directory to find other files associated with .obj file
 
 void loadPlanetModels(std::string directory, std::vector<std::unique_ptr<Mesh>>& meshes);
+
+std::unique_ptr<Mesh> loadAsteroidModel(std::string directory, const int number, std::vector<glm::mat4> instanceMatrix);
 
 // main routine that will load meshes into a vector of unique pointers used to return the models
 void loadModel(std::string path, std::vector<std::unique_ptr<Mesh>>& meshes);

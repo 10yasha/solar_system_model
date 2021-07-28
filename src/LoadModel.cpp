@@ -22,6 +22,16 @@ void loadPlanetModels(std::string directory, std::vector<std::unique_ptr<Mesh>>&
     }
 }
 
+std::unique_ptr<Mesh> loadAsteroidModel(std::string directory, const int number, std::vector<glm::mat4> instanceMatrix)
+{
+    std::vector<std::unique_ptr<Mesh>> meshes;
+
+    loadModel(directory + "asteroid.obj", meshes);
+    auto asteroidMesh = std::make_unique<Mesh>(std::move(meshes[0]), number, instanceMatrix);
+
+    return asteroidMesh;
+}
+
 
 // main routine that will load meshes into a vector of unique pointers used to return the models
 void loadModel(std::string path, std::vector<std::unique_ptr<Mesh>>& meshes)
@@ -141,20 +151,20 @@ static unsigned int TextureFromFile(std::string texturePath)
     bytes = stbi_load(texturePath.c_str(), &widthImg, &heightImg, &numCh, 0);
 
     // generates the OpenGL texture object
-    glGenTextures(1, &textureID);
+    GLCall(glGenTextures(1, &textureID));
 
     // not good practice to do here, but for this case of only 1 texture, is fine
-    glActiveTexture(GL_TEXTURE0);
+    GLCall(glActiveTexture(GL_TEXTURE0));
 
     // puts texture into openGL format to use, some config
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthImg, heightImg, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    GLCall(glBindTexture(GL_TEXTURE_2D, textureID));
+    GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthImg, heightImg, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes));
+    GLCall(glGenerateMipmap(GL_TEXTURE_2D));
+    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+    GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 
     stbi_image_free(bytes);
 

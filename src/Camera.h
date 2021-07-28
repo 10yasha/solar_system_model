@@ -26,7 +26,7 @@ public:
 	int m_height;
 
 	// constant to control movement of camera
-	float m_speed = 0.05f;
+	float m_speed = 0.5f;
 	float m_sensitivity = 100.f;
 	float m_zoomSpeed = 10.f;
 

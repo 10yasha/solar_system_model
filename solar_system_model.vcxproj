@@ -705,6 +705,8 @@
     <None Include="Libraries\lib\assimp-vc142-mtd.dll" />
     <None Include="Libraries\lib\assimp-vc142-mtd.exp" />
     <None Include="Libraries\lib\assimp-vc142-mtd.pdb" />
+    <None Include="src\shaders\asteroid.frag" />
+    <None Include="src\shaders\asteroid.vert" />
     <None Include="src\shaders\default.frag" />
     <None Include="src\shaders\default.vert" />
     <None Include="src\shaders\lightSource.frag" />

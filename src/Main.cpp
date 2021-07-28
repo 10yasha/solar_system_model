@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <math.h>
 #include <iostream>
 //#include <filesystem>
 
@@ -23,6 +24,17 @@
 #define WIDTH 1500
 #define HEIGHT 800
 
+// rng to generate number between -1 and 1
+float randf()
+{
+	return -1.0f + (rand() / (RAND_MAX / 2.0f));
+}
+
+// rng to generate number between -1 to -0.3 and 0.3 to 1
+float randscale()
+{
+	return (0.3f + (rand() / RAND_MAX * 0.7f)) * ((rand() % 2) * 2 - 1);
+}
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
@@ -63,11 +75,77 @@ int main()
 	// screen size within window
 	glViewport(0, 0, WIDTH, HEIGHT);
 
+	// light information
+	glm::vec3 lightPosition(0.0f, 0.0f, 0.0f);
+	glm::vec4 lightColor(1.0f, 1.0f, 1.0f, 1.0f);
+
 	// load shaders and link into one program
 	GLCall(Shader defaultShader("./src/shaders/default.vert", "./src/shaders/default.frag"));
 	GLCall(Shader skyboxShader("./src/shaders/skybox.vert", "./src/shaders/skybox.frag"));
 	GLCall(Shader lightSourceShader("./src/shaders/lightSource.vert", "./src/shaders/lightSource.frag"));
+	GLCall(Shader asteroidShader("./src/shaders/asteroid.vert", "./src/shaders/asteroid.frag"));
 	
+	glUniform3f(glGetUniformLocation(asteroidShader.m_ID, "lightColor"),
+		lightColor.x, lightColor.y, lightColor.z);
+	glUniform3f(glGetUniformLocation(asteroidShader.m_ID, "lightPosition"),
+		lightPosition.x, lightPosition.y, lightPosition.z);
+
+
+	// asteroids generated here, will clean up later!
+
+	const unsigned int numberAsteroids = 500;
+	// Radius of circle around which asteroids orbit
+	float radius = 400.0f;
+	// How much ateroids deviate from the radius
+	float radiusDeviation = 25.0f;
+
+	// Holds all transformations for the asteroids
+	std::vector<glm::mat4> instanceMatrix;
+
+	for (unsigned int i = 0; i < numberAsteroids; i++)
+	{
+		// Generates x and y for the function x^2 + y^2 = radius^2 which is a circle
+		float x = randf(); // -1 to 1
+		float finalRadius = radius + randf() * radiusDeviation; // 375 to 425
+		float y = ((rand() % 2) * 2 - 1) * sqrt(1.0f - x * x); // +/- sqrt(1-x^2)
+
+		// Holds transformations before multiplying them
+		glm::vec3 tempTranslation;
+		glm::quat tempRotation;
+		glm::vec3 tempScale;
+
+		// Makes the random distribution more even
+		if (randf() > 0.5f)
+		{
+			// Generates a translation near a circle of radius "radius"
+			tempTranslation = glm::vec3(y * finalRadius, randf(), x * finalRadius);
+		}
+		else
+		{
+			tempTranslation = glm::vec3(x * finalRadius, randf(), y * finalRadius);
+		}
+		// random rotations
+		tempRotation = glm::quat(1.0f, randf(), randf(), randf());
+		// random scales
+		tempScale = 0.1f * glm::vec3(randscale(), randscale(), randscale());
+
+
+		// model matrix components
+		glm::mat4 trans = glm::translate(glm::mat4(1.0f), tempTranslation);
+		glm::mat4 rot = glm::mat4_cast(tempRotation);
+		glm::mat4 sca = glm::scale(glm::mat4(1.0f), tempScale);
+
+		// additional scaling
+		// glm::mat4 addScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.25f, 0.25f, 0.25f));
+		glm::mat4 addScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+		//glm::mat4 addScale = glm::mat4(1.0f);
+
+		// Push matrix transformation
+		instanceMatrix.push_back(trans * rot * sca * addScale);
+	}
+	// Create the asteroid model with instancing enabled
+	auto asteroid = loadAsteroidModel("./resources/models/", numberAsteroids, instanceMatrix);
+
 	// planets
 	std::vector<std::unique_ptr<Mesh>> meshes;
 
@@ -75,6 +153,8 @@ int main()
 	loadPlanetModels("./resources/models/", meshes);
 
 	std::vector<StellarObject> celestialBodies = initStellarObjects(meshes);
+
+
 
 	// variables to define rotation
 	double prevTime = glfwGetTime();
@@ -87,11 +167,7 @@ int main()
 	glfwSetScrollCallback(window, scrollCallback);
 
 	// whether objects will move in their orbit the sun
-	bool move = true;
-
-	// light information
-	glm::vec3 lightPosition(0.0f, 0.0f, 0.0f);
-	glm::vec4 lightColor(1.0f, 1.0f, 1.0f, 1.0f);
+	bool move = false;
 
 	// necessary so depth in 3D models rendered properly
 	glEnable(GL_DEPTH_TEST);
@@ -131,6 +207,7 @@ int main()
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.exportToShader(defaultShader, "camMatrix");
 		camera.exportToShader(lightSourceShader, "camMatrix");
+		camera.exportToShader(asteroidShader, "camMatrix");
 
 		// draw the sun and all the planets
 		for (auto& celestialBody : celestialBodies)
@@ -151,8 +228,6 @@ int main()
 				// export uniform for update model of the object to the GPU
 				celestialBody.exportToShader(defaultShader, "model");
 
-				// glUniform4f(glGetUniformLocation(lightSourceShader.m_ID, "lightColor"),
-				//	lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 				glUniform3f(glGetUniformLocation(defaultShader.m_ID, "lightColor"),
 					lightColor.x, lightColor.y, lightColor.z);
 				glUniform3f(glGetUniformLocation(defaultShader.m_ID, "lightPosition"),
@@ -163,11 +238,14 @@ int main()
 			}
 		}
 
+		// draw asteroids
+		asteroid->draw(asteroidShader);
+
 		// draw the skybox
 		skybox.draw(skyboxShader, camera);
 
 		// there are 2 image buffers, one displayed, and one drawn to.
-		// must swap buffers in order to display
+		// must swap buffers in order to display back buffer.
 		glfwSwapBuffers(window);
 
 		// take care of all GLFW events

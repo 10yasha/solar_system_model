@@ -33,14 +33,17 @@ public:
 	std::vector<unsigned int> m_indices;
 	Texture m_texture;
 
+	int m_instancing;
+
 	// openGL IDs
-	unsigned int m_VAO, m_VBO, m_EBO;
+	unsigned int m_VAO, m_VBO, m_EBO, m_instanceVBO;
 
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Texture texture);
+	Mesh(std::unique_ptr<Mesh>&& other, const float number, std::vector<glm::mat4> instanceMatrix);
 	~Mesh();
 
 	// sets up the mesh
-	void initMesh();
+	void initMesh(const float number = 1, std::vector<glm::mat4> instanceMatrix = {});
 
 	// draw call based on shader
 	void draw(Shader& shader);

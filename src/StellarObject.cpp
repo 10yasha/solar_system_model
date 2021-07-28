@@ -37,14 +37,14 @@ std::vector<StellarObject> initStellarObjects(std::vector<std::unique_ptr<Mesh>>
 	std::tuple<double, double> ellipseParams[9] =
 	{
 		std::make_tuple(0.0f, 0.0f),
-		std::make_tuple(300.0f, 300.0f),
-		std::make_tuple(310.0f, 310.0f),
 		std::make_tuple(320.0f, 320.0f),
 		std::make_tuple(330.0f, 330.0f),
-		std::make_tuple(420.0f, 420.0f),
-		std::make_tuple(500.0f, 500.0f),
-		std::make_tuple(560.0f, 560.0f),
-		std::make_tuple(600.0f, 600.0f)
+		std::make_tuple(340.0f, 340.0f),
+		std::make_tuple(350.0f, 350.0f),
+		std::make_tuple(470.0f, 470.0f),
+		std::make_tuple(540.0f, 540.0f),
+		std::make_tuple(600.0f, 600.0f),
+		std::make_tuple(640.0f, 640.0f)
 	};
 	/*{
 		std::make_tuple(0.0f, 0.0f),
