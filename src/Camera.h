@@ -30,6 +30,9 @@ public:
 	float m_sensitivity = 100.f;
 	float m_zoomSpeed = 10.f;
 
+	// scaling to control speed and zoom speed
+	float movementMag = 1.f;
+
 	// prevents the camera from jumping around when first clicking
 	bool m_firstClick = true;
 

@@ -9,7 +9,7 @@ Camera::Camera(int width, int height, float FOVdeg, float nearPlane, float farPl
 
 void Camera::zoom(double yoffset)
 {
-	m_position += float(yoffset) * m_zoomSpeed * m_orientation;
+	m_position += float(yoffset) * m_zoomSpeed * m_orientation * movementMag;
 }
 
 void Camera::exportToShader(Shader& shader, const char* uniform)
@@ -26,8 +26,8 @@ void Camera::exportToShader(Shader& shader, const char* uniform)
 
 	// Exports the camera matrix to the Vertex Shader
 	glUniformMatrix4fv(glGetUniformLocation(shader.m_ID, uniform), 1, GL_FALSE, glm::value_ptr(projection * view));
-	/*std::cout << m_position.x << " " << m_position.y << " " << m_position.z << " " << 
-		m_orientation.x << " " << m_orientation.y << " " << m_orientation.z << " " << std::endl;*/
+	//std::cout << m_position.x << " " << m_position.y << " " << m_position.z << " " << 
+	//	m_orientation.x << " " << m_orientation.y << " " << m_orientation.z << " " << std::endl;
 }
 
 
@@ -38,38 +38,30 @@ void Camera::getInputs(GLFWwindow* window)
 	{
 		//m_position += m_speed * m_orientation;
 		//m_position += m_speed * m_upDirection;
-		m_position += m_speed * glm::normalize(glm::cross(glm::cross(m_orientation, m_upDirection), m_orientation));
+		m_position += m_speed * movementMag * glm::normalize(glm::cross(glm::cross(m_orientation, m_upDirection), m_orientation));
 	}
 	if ((glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS))
 	{
-		m_position += m_speed * -glm::normalize(glm::cross(m_orientation, m_upDirection));
+		m_position += m_speed * movementMag * -glm::normalize(glm::cross(m_orientation, m_upDirection));
 	}
 	if ((glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS))
 	{
 		//m_position += m_speed * -m_orientation;
 		//m_position += m_speed * -m_upDirection;
-		m_position += m_speed * -glm::normalize(glm::cross(glm::cross(m_orientation, m_upDirection), m_orientation));
+		m_position += m_speed * movementMag * -glm::normalize(glm::cross(glm::cross(m_orientation, m_upDirection), m_orientation));
 	}
 	if ((glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS))
 	{
-		m_position += m_speed * glm::normalize(glm::cross(m_orientation, m_upDirection));
+		m_position += m_speed * movementMag * glm::normalize(glm::cross(m_orientation, m_upDirection));
 	}
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
 	{
-		m_position += m_speed * m_upDirection;
+		movementMag *= 1.1f;
 	}
-	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
 	{
-		m_position += m_speed * -m_upDirection;
+		movementMag /= 1.1f;
 	}
-	/*if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-	{
-		m_speed = 0.4f;
-	}
-	else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
-	{
-		m_speed = 0.1f;
-	}*/
 
 
 	// Handles mouse inputs

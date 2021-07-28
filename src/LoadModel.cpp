@@ -1,9 +1,11 @@
 #include "LoadModel.h"
 
+static std::string directory; // keep track of directory to find other files associated with .obj file
+
 void loadPlanetModels(std::string directory, std::vector<std::unique_ptr<Mesh>>& meshes)
 {
     // loads planet models
-    std::string modelPaths[9] =
+    std::string modelPaths[15] =
     {
         directory + "sun.obj",
         directory + "mercury.obj",
@@ -13,7 +15,13 @@ void loadPlanetModels(std::string directory, std::vector<std::unique_ptr<Mesh>>&
         directory + "jupiter.obj",
         directory + "saturn.obj",
         directory + "uranus.obj",
-        directory + "neptune.obj"
+        directory + "neptune.obj",
+        directory + "moon.obj",
+        directory + "titan.obj",
+        directory + "io.obj",
+        directory + "europa.obj",
+        directory + "ganymede.obj",
+        directory + "callisto.obj"
     };
 
     for (std::string modelPath : modelPaths)

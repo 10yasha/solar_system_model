@@ -41,8 +41,8 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 // must create as global, due to having to use callback for scroll wheel which only takes function pointer
 // (as oppposed to class function pointer)
 // it was between a global or a singleton, they're both bad... I guess I'd rather a global than a singleton xD
-Camera camera(WIDTH, HEIGHT, 45.f, 0.1f, 10000.f, glm::vec3(176.335f, 195.577f, 757.643f),
-	glm::vec3(-0.449704, -0.417709f, -0.789486f));
+Camera camera(WIDTH, HEIGHT, 45.f, 0.1f, 10000.f, glm::vec3(133.887, 84.8933, 759.807),
+	glm::vec3(-0.496603, -0.391775, -0.774533));
 
 
 // global parameter for amount of days that will elapse per second of real time
@@ -152,9 +152,7 @@ int main()
 	// loads planet models
 	loadPlanetModels("./resources/models/", meshes);
 
-	std::vector<StellarObject> celestialBodies = initStellarObjects(meshes);
-
-
+	std::vector<StellarObject> stellarObjects = initStellarObjects(meshes);
 
 	// variables to define rotation
 	double prevTime = glfwGetTime();
@@ -167,7 +165,7 @@ int main()
 	glfwSetScrollCallback(window, scrollCallback);
 
 	// whether objects will move in their orbit the sun
-	bool move = false;
+	bool enableOrbitalMotion = false;
 
 	// necessary so depth in 3D models rendered properly
 	glEnable(GL_DEPTH_TEST);
@@ -187,15 +185,15 @@ int main()
 			prevTime = curTime;
 
 			// update each of the stellar object models for movement that occurred
-			for (auto& celestialBody : celestialBodies)
+			for (auto& stellarObject : stellarObjects)
 			{
-				celestialBody.updateRotation(realTimeElapsed * daysPerSecond);
+				stellarObject.updateRotation(realTimeElapsed * daysPerSecond);
 
-				if (celestialBody.m_name != "sun")
+				if (stellarObject.m_name != "sun")
 				{
-					if (move)
+					if (enableOrbitalMotion)
 					{
-						celestialBody.updatePosition(realTimeElapsed * daysPerSecond);
+						stellarObject.updatePosition(realTimeElapsed * daysPerSecond);
 					}
 				}
 			}
@@ -210,23 +208,23 @@ int main()
 		camera.exportToShader(asteroidShader, "camMatrix");
 
 		// draw the sun and all the planets
-		for (auto& celestialBody : celestialBodies)
+		for (auto& stellarObject : stellarObjects)
 		{
-			if (celestialBody.m_name == "sun")
+			if (stellarObject.m_name == "sun")
 			{
 				// export uniform for update model of the object to the GPU
-				celestialBody.exportToShader(lightSourceShader, "model");
+				stellarObject.exportToShader(lightSourceShader, "model");
 
 				// glUniform4f(glGetUniformLocation(lightSourceShader.m_ID, "lightColor"),
 				//	lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 
 				// finally draw all the objects
-				celestialBody.draw(lightSourceShader);
+				stellarObject.draw(lightSourceShader);
 			}
 			else
 			{
 				// export uniform for update model of the object to the GPU
-				celestialBody.exportToShader(defaultShader, "model");
+				stellarObject.exportToShader(defaultShader, "model");
 
 				glUniform3f(glGetUniformLocation(defaultShader.m_ID, "lightColor"),
 					lightColor.x, lightColor.y, lightColor.z);
@@ -234,7 +232,7 @@ int main()
 					lightPosition.x, lightPosition.y, lightPosition.z);
 
 				// finally draw all the objects
-				celestialBody.draw(defaultShader);
+				stellarObject.draw(defaultShader);
 			}
 		}
 
