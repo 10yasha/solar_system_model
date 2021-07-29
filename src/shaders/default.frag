@@ -17,7 +17,6 @@ uniform vec3 lightPosition;
 
 void main()
 {
-    // only have diffuse lighting for now
     vec3 norm = normalize(Normal);
     vec3 lightDirection = normalize(lightPosition - FragPosition);
     float diff = max(dot(norm, lightDirection), 0.07);

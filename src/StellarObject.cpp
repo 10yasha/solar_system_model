@@ -10,7 +10,7 @@ std::vector<StellarObject> initStellarObjects(std::vector<std::unique_ptr<Mesh>>
 	// length of year according to https://spaceplace.nasa.gov/years-on-other-planets/en/
 	// size of moons according to https://www.worldatlas.com/articles/biggest-moons-in-our-solar-system.html
 	std::tuple<std::string, std::string, double, double, double, double, double> stellarObjectInfos[15] =
-	/*{
+	/*{ // to-scale values
 		std::make_tuple("sun", 7.25, 14.18, 696340, 0),
 		std::make_tuple("mercury", 0.03, 6.14, 2440, 88),
 		std::make_tuple("venus", 2.64, -1.48, 6052, 225),
@@ -59,7 +59,7 @@ std::vector<StellarObject> initStellarObjects(std::vector<std::unique_ptr<Mesh>>
 		std::make_tuple(50.0f, 50.0f),
 		std::make_tuple(55.0f, 55.0f)
 	};
-	/*{
+	/*{ // to-scale values
 		std::make_tuple(0.0f, 0.0f),
 		std::make_tuple(57.9f, 56.6703f),
 		std::make_tuple(108.f, 107.9974f),
@@ -72,6 +72,7 @@ std::vector<StellarObject> initStellarObjects(std::vector<std::unique_ptr<Mesh>>
 	};*/
 
 	ASSERT(sizeof(stellarObjectInfos)/sizeof(stellarObjectInfos[0]) == meshes.size());
+	ASSERT(sizeof(ellipseParams) / sizeof(ellipseParams[0]) == meshes.size());
 
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
@@ -85,10 +86,11 @@ std::vector<StellarObject> initStellarObjects(std::vector<std::unique_ptr<Mesh>>
 			std::get<6>(stellarObjectInfos[i]), // starting angle
 			std::get<0>(ellipseParams[i]), // ellipse param a
 			std::get<1>(ellipseParams[i]), // ellipse param b
-			std::move(meshes[i])
+			std::move(meshes[i]) // vectices/indices to draw
 		));
 	}
 
+	// sets ptr from each object to object it orbits around
 	for (auto& stellarObject : stellarObjects)
 	{
 		stellarObject.m_orbitalFocusPtr = getPtrToStellarObject(stellarObjects, stellarObject.m_orbitalFocus);
@@ -133,6 +135,27 @@ StellarObject::~StellarObject()
 {
 }
 
+StellarObject::StellarObject(StellarObject&& other) noexcept
+{
+	m_name = other.m_name;
+	m_axialTilt = other.m_axialTilt;
+	m_rotationSpeed = other.m_rotationSpeed;
+	m_objectRadius = other.m_objectRadius;
+	m_lengthOfYear = other.m_lengthOfYear;
+
+	m_a = other.m_a;
+	m_b = other.m_b;
+
+	m_locMat = other.m_locMat;
+	m_curObjectRotation = other.m_curObjectRotation;
+	m_curOrbitalRotation = other.m_curOrbitalRotation;
+
+	m_orbitalFocus = other.m_orbitalFocus;
+	m_orbitalFocusPtr = other.m_orbitalFocusPtr;
+
+	m_mesh = std::move(other.m_mesh);
+}
+
 void StellarObject::updateModel(double timeElapsed)
 {
 	updateRotation(timeElapsed);
@@ -149,7 +172,7 @@ void StellarObject::updatePosition(double timeElapsed)
 {
 	m_curOrbitalRotation += timeElapsed / m_lengthOfYear;
 
-	// TRANSLATION //
+	// TRANSLATION 1 //
 	float x = m_a * sin(PI * 2 * m_curOrbitalRotation);
 	float y = m_b * cos(PI * 2 * m_curOrbitalRotation);
 	m_locMat = glm::translate(glm::mat4(1), glm::vec3(x, 0.0f, y));
@@ -165,7 +188,7 @@ void StellarObject::exportToShader(Shader& shader, const char* uniform)
 	// axial tilt rotation, m_axialTilt will be constant for the stellar object
 	matRotation = glm::rotate(matRotation, glm::radians(float(m_axialTilt)), glm::vec3(0.f, 0.f, 1.f));
 
-	// current rotation, m_rotation is constantly being updated
+	// current rotation angle
 	matRotation = glm::rotate(matRotation, glm::radians(float(m_curObjectRotation)), glm::vec3(0.f, 1.f, 0.f));
 
 	// SCALE //
@@ -174,7 +197,8 @@ void StellarObject::exportToShader(Shader& shader, const char* uniform)
 	float scaleFactor = float(m_objectRadius) / EARTH_RADIUS;
 	matScale = glm::scale(matScale, glm::vec3(scaleFactor, scaleFactor, scaleFactor));
 	
-	// translation due to orbital focus object
+	// TRANSLATION 2 //
+	// due to object it orbits around
 	glm::mat4 orbitalFocusMat;
 	if (m_orbitalFocusPtr == nullptr)
 	{
@@ -192,6 +216,5 @@ void StellarObject::exportToShader(Shader& shader, const char* uniform)
 
 void StellarObject::draw(Shader& shader)
 {
-	// just call draw in the mesh object
 	m_mesh->draw(shader);
 }

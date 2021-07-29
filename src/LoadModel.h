@@ -18,8 +18,10 @@
 #include "mesh.h"
 #include "GLErrors.h"
 
-void loadPlanetModels(std::string directory, std::vector<std::unique_ptr<Mesh>>& meshes);
+// loads sun, planets, and satellites
+void loadSolarSystemModels(std::string directory, std::vector<std::unique_ptr<Mesh>>& meshes);
 
+// loads the asteroid model to use for asteroid belt
 std::unique_ptr<Mesh> loadAsteroidModel(std::string directory, const int number, std::vector<glm::mat4> instanceMatrix);
 
 // main routine that will load meshes into a vector of unique pointers used to return the models
@@ -29,7 +31,7 @@ void loadModel(std::string path, std::vector<std::unique_ptr<Mesh>>& meshes);
 static void processNode(aiNode* node, const aiScene* scene, std::vector<std::unique_ptr<Mesh>>& meshes);
 
 // processes each of the aiMesh in the nodes and converts them into mesh class defined in Mesh.h
-// Note: these two mesh classes are different!
+// Note: these two mesh classes are different
 static std::unique_ptr<Mesh> processMesh(aiMesh* mesh, const aiScene* scene);
 
 // loads the texture defined by the material

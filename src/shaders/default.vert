@@ -11,20 +11,20 @@ out vec2 texCoord;
 uniform mat4 model;
 uniform mat4 camMatrix; // proj * view
 
+// need to pass to fragment shader
 out vec3 Normal;
 out vec3 FragPosition;
 
 void main()
 {
-	// determines final position of vertices
-	gl_Position = camMatrix * model * vec4(position, 1.0);
+	vec4 tempPosition = model * vec4(position, 1.0f);
 
-	// assigns texture coordinates to pass to the fragment shader
+	// final vertix position
+	gl_Position = camMatrix * tempPosition;
+
+	FragPosition = vec3(tempPosition);
+
 	texCoord = texCoor;
 
-	FragPosition = vec3(model * vec4(position, 1.0f));
-	// FragPosition = position;
-
 	Normal = mat3(transpose(inverse(model))) * normal;
-	// Normal = normal;
 }

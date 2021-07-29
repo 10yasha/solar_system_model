@@ -14,9 +14,9 @@ uniform mat4 camMatrix; // proj * view
 
 void main()
 {
-	// determines final position of vertices
+	// final vertex position
 	gl_Position = camMatrix * model * vec4(position, 1.0);
 
-	// assigns texture coordinates to pass to the fragment shader
+	// pass uvs to fragment shader
 	texCoord = texCoor;
 }

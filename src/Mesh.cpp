@@ -1,6 +1,5 @@
 #include "Mesh.h"
 
-// constructor
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Texture texture)
 	: m_vertices(vertices), m_indices(indices), m_texture(texture), m_instancing(1)
 {
@@ -13,7 +12,6 @@ Mesh::Mesh(std::unique_ptr<Mesh>&& other, const float number, std::vector<glm::m
 	initMesh(number, instanceMatrix);
 }
 
-// clean up vertex array and buffers
 Mesh::~Mesh()
 {
 	glDeleteVertexArrays(1, &m_VAO);
@@ -31,20 +29,19 @@ void Mesh::initMesh(const float number, std::vector<glm::mat4> instanceMatrix)
 	glGenBuffers(1, &m_EBO);
 	glGenBuffers(1, &m_instanceVBO);
 
-	// vertex array object must be bound first
 	glBindVertexArray(m_VAO);
 
-	// vertex buffer object
+	// vertex buffer
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), &m_vertices[0], GL_STATIC_DRAW));
 
-	// element/index buffer object
+	// index buffer
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO));
 	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_STATIC_DRAW));
 
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
 
-	// setup layout for shaders
+	// layout
 	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0));
 	GLCall(glEnableVertexAttribArray(0));
 	GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoor)));
@@ -52,6 +49,7 @@ void Mesh::initMesh(const float number, std::vector<glm::mat4> instanceMatrix)
 	GLCall(glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal)));
 	GLCall(glEnableVertexAttribArray(2));
 
+	// in the case of instanced drawing, set up additional buffers
 	if (number != 1)
 	{
 		// instanced VBO
@@ -79,37 +77,32 @@ void Mesh::initMesh(const float number, std::vector<glm::mat4> instanceMatrix)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-// draw call based on shader
 void Mesh::draw(Shader& shader)
 {
-	// Bind shader to be able to access uniforms
-	
+	// bind shader to be able to access uniforms
 	GLCall(shader.bind());
 	GLCall(glBindVertexArray(m_VAO));
 
-	// Gets the location of the uniform
+	// get uniform location and set it
 	GLCall(int texUni = glGetUniformLocation(shader.m_ID, "tex0"));
-	// Sets the value of the uniform
 	GLCall(glUniform1i(texUni, 0));
 
 	GLCall(glActiveTexture(GL_TEXTURE0));
 	GLCall(glBindTexture(GL_TEXTURE_2D, m_texture.ID));
-
-	// Draw the actual mesh
 	
-	// Check if instance drawing should be performed
+	// check if instanced drawing
 	if (m_instancing == 1)
 	{
+		// normal draw
 		GLCall(glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0));
 	}
 	else
 	{
+		// instanced draw
 		GLCall(glDrawElementsInstanced(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0, m_instancing));
 	}
 
-	// unbind texture and VAO
 	GLCall(glActiveTexture(GL_TEXTURE0));
 	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 	GLCall(glBindVertexArray(0));
-	
 }

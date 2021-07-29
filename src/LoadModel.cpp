@@ -1,8 +1,9 @@
 #include "LoadModel.h"
 
-static std::string directory; // keep track of directory to find other files associated with .obj file
+// keep track of directory to find other files associated with .obj file
+static std::string directory;
 
-void loadPlanetModels(std::string directory, std::vector<std::unique_ptr<Mesh>>& meshes)
+void loadSolarSystemModels(std::string directory, std::vector<std::unique_ptr<Mesh>>& meshes)
 {
     // loads planet models
     std::string modelPaths[15] =
@@ -47,7 +48,6 @@ void loadModel(std::string path, std::vector<std::unique_ptr<Mesh>>& meshes)
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
-    // error check
     if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
         std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
@@ -57,7 +57,7 @@ void loadModel(std::string path, std::vector<std::unique_ptr<Mesh>>& meshes)
     // set static variable
     directory = path.substr(0, path.find_last_of('/'));
 
-    // starts recursive function that will iterate through all the nodes in the scene
+    // starts recursion that will iterate through all the nodes in the scene
     processNode(scene->mRootNode, scene, meshes);
 }
 
@@ -84,7 +84,7 @@ static std::unique_ptr<Mesh> processMesh(aiMesh* mesh, const aiScene* scene)
     std::vector<GLuint> indices;
     Texture texture; // there will only be 1 texture (only diffuse map) for simplicity
 
-    // vertex data here
+    // vertex data
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         Vertex vertex;
@@ -108,7 +108,7 @@ static std::unique_ptr<Mesh> processMesh(aiMesh* mesh, const aiScene* scene)
         vertices.push_back(vertex);
     }
 
-    // index data here, found within faces
+    // index data, found within faces
     for (unsigned int i = 0; i < mesh->mNumFaces; i++)
     {
         aiFace face = mesh->mFaces[i];
@@ -118,7 +118,7 @@ static std::unique_ptr<Mesh> processMesh(aiMesh* mesh, const aiScene* scene)
         }
     }
 
-    // material data here
+    // material data to get texture
     if (mesh->mMaterialIndex >= 0)
     {
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -161,7 +161,7 @@ static unsigned int TextureFromFile(std::string texturePath)
     // generates the OpenGL texture object
     GLCall(glGenTextures(1, &textureID));
 
-    // not good practice to do here, but for this case of only 1 texture, is fine
+    // maybe not good practice to do it here, it works though xD
     GLCall(glActiveTexture(GL_TEXTURE0));
 
     // puts texture into openGL format to use, some config

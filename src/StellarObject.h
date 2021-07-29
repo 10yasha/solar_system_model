@@ -15,9 +15,10 @@
 
 class StellarObject;
 
-// creates all the planet objects with parameters like axial tilt/duration of single rotation
+// takes in meshes and creates all the StellarObjects (sun, planets, satellites) with correct parameters
 std::vector<StellarObject> initStellarObjects(std::vector<std::unique_ptr<Mesh>>& meshes);
 
+// helper function for initStellarObjects to link each object to the object it rotates around
 StellarObject* getPtrToStellarObject(std::vector<StellarObject>& stellarObjects, std::string orbitalFocus);
 
 class StellarObject
@@ -30,36 +31,25 @@ public:
 	double m_curObjectRotation;
 	double m_curOrbitalRotation;
 	std::string m_orbitalFocus;
-	StellarObject* m_orbitalFocusPtr; // using raw ptr, objects were created with std::make_unique, are destructed elsewhere
 	std::unique_ptr<Mesh> m_mesh;
+
+	// using raw ptr, objects were created with std::make_unique, are destructed elsewhere so no clean up
+	StellarObject* m_orbitalFocusPtr;
 
 	StellarObject(std::string name, std::string orbitalFocus, double axialTilt, double rotationSpeed, double objectRadius,
 		double lengthOfYear, double startingAngle, double a, double b, std::unique_ptr<Mesh> mesh);
 	~StellarObject();
 
-	// quick move constructor in header for now
-	StellarObject(StellarObject&& other) noexcept
-	{
-		m_name = other.m_name;
-		m_axialTilt = other.m_axialTilt;
-		m_rotationSpeed = other.m_rotationSpeed;
-		m_objectRadius = other.m_objectRadius;
-		m_lengthOfYear = other.m_lengthOfYear;
-		m_a = other.m_a;
-		m_b = other.m_b;
-		m_locMat = other.m_locMat;
-		m_curObjectRotation = other.m_curObjectRotation;
-		m_curOrbitalRotation = other.m_curOrbitalRotation;
-		m_orbitalFocus = other.m_orbitalFocus;
-		m_orbitalFocusPtr = other.m_orbitalFocusPtr;
-		m_mesh = std::move(other.m_mesh);
-	}
+	// move constructor takes care of unique_ptr to mesh
+	StellarObject(StellarObject&& other) noexcept;
 
+	// update rotation and position
 	void updateModel(double timeElapsed);
 	
 	void updateRotation(double timeElapsed);
 	void updatePosition(double timeElapsed);
 
+	// exports model uniform to the shader
 	void exportToShader(Shader& shader, const char* uniform);
 
 	void draw(Shader& shader);

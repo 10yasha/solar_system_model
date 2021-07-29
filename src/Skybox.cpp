@@ -1,7 +1,6 @@
 #include "Skybox.h"
 
 
-// constructor
 Skybox::Skybox(std::string directory)
 {
 	initSkybox();
@@ -9,14 +8,12 @@ Skybox::Skybox(std::string directory)
 	createCubeMap();
 }
 
-// initializes and send vertices and indices data to buffers
 void Skybox::initSkybox() {
 	// create VAO, VBO, EBO for the skybox
 	glGenVertexArrays(1, &m_vao);
 	glGenBuffers(1, &m_vbo);
 	glGenBuffers(1, &m_ebo);
 
-	// bind vbo to this vao
 	glBindVertexArray(m_vao);
 
 	// send the vertices data
@@ -37,7 +34,6 @@ void Skybox::initSkybox() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-// fills in array of filepaths
 void Skybox::getTexturePaths(std::string directory)
 {
 	// faces of the cubemap
@@ -55,7 +51,6 @@ void Skybox::getTexturePaths(std::string directory)
 	std::copy(cubemapPaths, cubemapPaths + 6, m_cubemapPaths);
 }
 
-// uses skybox textures to create cubemap
 void Skybox::createCubeMap() {
 	// create cubemap texture object
 	glGenTextures(1, &m_cubemapTexID);

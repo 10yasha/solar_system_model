@@ -16,7 +16,7 @@ class Shader
 public:
 	unsigned int m_ID;
 
-	// Reads a text file and outputs a string with everything in the text file
+	// constructor, build the shader from vertex + fragment shaders
 	Shader(const char* vertShader, const char* fragShader);
 
 	void bind();

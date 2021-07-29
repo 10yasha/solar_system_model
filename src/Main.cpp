@@ -7,10 +7,6 @@
 
 #include <math.h>
 #include <iostream>
-//#include <filesystem>
-
-// change to std::filesystem depending on your compiler
-//namespace fs = std::experimental::filesystem;
 
 #include "Mesh.h"
 #include "Shader.h"
@@ -30,7 +26,7 @@ float randf()
 	return -1.0f + (rand() / (RAND_MAX / 2.0f));
 }
 
-// rng to generate number between -1 to -0.3 and 0.3 to 1
+// rng to generate number between -1 to -0.3 or 0.3 to 1
 float randscale()
 {
 	return (0.3f + (rand() / RAND_MAX * 0.7f)) * ((rand() % 2) * 2 - 1);
@@ -45,18 +41,26 @@ Camera camera(WIDTH, HEIGHT, 45.f, 0.1f, 10000.f, glm::vec3(133.887, 84.8933, 75
 	glm::vec3(-0.496603, -0.391775, -0.774533));
 
 
-// global parameter for amount of days that will elapse per second of real time
+// scroll callback for zooming in and out, cannot be part of class since must be function pointer
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	camera.zoom(yoffset);
+}
+
+
+// need to move these params into GUI, and put in some class
+// parameter for amount of days that will elapse per second of real time
 double daysPerSecond = 0.2f;
+// whether objects will move in their orbits
+bool enableOrbitalMotion = true;
 
 int main()
 {
 	glfwInit();
 
-	// Using OpenGL 3.3
+	// modernOpenGL is 3.3+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
-	// CORE profile -> only have the modern functions
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Solar System Model", nullptr, nullptr);
@@ -69,10 +73,9 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 
-	//Load GLAD (loads functions from GPU provided by manufacturer, intel for me)
+	// GLAD -> loads implementation from GPU provided by manufacturer, ie. Intel, AMD
 	gladLoadGL();
 
-	// screen size within window
 	glViewport(0, 0, WIDTH, HEIGHT);
 
 	// light information
@@ -80,10 +83,10 @@ int main()
 	glm::vec4 lightColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// load shaders and link into one program
-	GLCall(Shader defaultShader("./src/shaders/default.vert", "./src/shaders/default.frag"));
-	GLCall(Shader skyboxShader("./src/shaders/skybox.vert", "./src/shaders/skybox.frag"));
-	GLCall(Shader lightSourceShader("./src/shaders/lightSource.vert", "./src/shaders/lightSource.frag"));
-	GLCall(Shader asteroidShader("./src/shaders/asteroid.vert", "./src/shaders/asteroid.frag"));
+	GLCall(Shader defaultShader("./src/shaders/default.vert", "./src/shaders/default.frag")); // planets
+	GLCall(Shader skyboxShader("./src/shaders/skybox.vert", "./src/shaders/skybox.frag")); // background
+	GLCall(Shader lightSourceShader("./src/shaders/lightSource.vert", "./src/shaders/lightSource.frag")); // the sun
+	GLCall(Shader asteroidShader("./src/shaders/asteroid.vert", "./src/shaders/asteroid.frag")); // asteroid belt
 	
 	glUniform3f(glGetUniformLocation(asteroidShader.m_ID, "lightColor"),
 		lightColor.x, lightColor.y, lightColor.z);
@@ -94,30 +97,26 @@ int main()
 	// asteroids generated here, will clean up later!
 
 	const unsigned int numberAsteroids = 500;
-	// Radius of circle around which asteroids orbit
 	float radius = 400.0f;
-	// How much ateroids deviate from the radius
 	float radiusDeviation = 25.0f;
 
-	// Holds all transformations for the asteroids
+	// holds different transformations for each asteroid
 	std::vector<glm::mat4> instanceMatrix;
 
 	for (unsigned int i = 0; i < numberAsteroids; i++)
 	{
-		// Generates x and y for the function x^2 + y^2 = radius^2 which is a circle
+		// using equation x^2 + y^2 = radius^2 (circle)
 		float x = randf(); // -1 to 1
 		float finalRadius = radius + randf() * radiusDeviation; // 375 to 425
-		float y = ((rand() % 2) * 2 - 1) * sqrt(1.0f - x * x); // +/- sqrt(1-x^2)
+		float y = ((rand() % 2) * 2 - 1) * sqrt(1.0f - x * x); // +/- sqrt(1-x^2) -> -1 to 1
 
-		// Holds transformations before multiplying them
 		glm::vec3 tempTranslation;
 		glm::quat tempRotation;
 		glm::vec3 tempScale;
 
-		// Makes the random distribution more even
+		// makes the random distribution more even
 		if (randf() > 0.5f)
 		{
-			// Generates a translation near a circle of radius "radius"
 			tempTranslation = glm::vec3(y * finalRadius, randf(), x * finalRadius);
 		}
 		else
@@ -134,57 +133,43 @@ int main()
 		glm::mat4 trans = glm::translate(glm::mat4(1.0f), tempTranslation);
 		glm::mat4 rot = glm::mat4_cast(tempRotation);
 		glm::mat4 sca = glm::scale(glm::mat4(1.0f), tempScale);
+		glm::mat4 addScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f)); // additional scaling
 
-		// additional scaling
-		// glm::mat4 addScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.25f, 0.25f, 0.25f));
-		glm::mat4 addScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
-		//glm::mat4 addScale = glm::mat4(1.0f);
-
-		// Push matrix transformation
 		instanceMatrix.push_back(trans * rot * sca * addScale);
 	}
-	// Create the asteroid model with instancing enabled
+	// instancing enabled
 	auto asteroid = loadAsteroidModel("./resources/models/", numberAsteroids, instanceMatrix);
 
-	// planets
+	// planets loaded here
 	std::vector<std::unique_ptr<Mesh>> meshes;
-
-	// loads planet models
-	loadPlanetModels("./resources/models/", meshes);
-
+	loadSolarSystemModels("./resources/models/", meshes);
 	std::vector<StellarObject> stellarObjects = initStellarObjects(meshes);
 
-	// variables to define rotation
+	// will track real time
 	double prevTime = glfwGetTime();
 	double curTime;
 	
-	// skybox
 	Skybox skybox("./resources/milky_way_skybox/");
 
-	// set scrollCallback for the camera
+	// enable zooming through scroll on mouse
 	glfwSetScrollCallback(window, scrollCallback);
-
-	// whether objects will move in their orbit the sun
-	bool enableOrbitalMotion = false;
 
 	// necessary so depth in 3D models rendered properly
 	glEnable(GL_DEPTH_TEST);
 
-	// main loop here
+
 	while (!glfwWindowShouldClose(window))
 	{
 		// background
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // black
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// simple timer to do rotation
 		curTime = glfwGetTime();
 		if (curTime - prevTime >= 1 / 60)
 		{
 			double realTimeElapsed = curTime - prevTime;
 			prevTime = curTime;
 
-			// update each of the stellar object models for movement that occurred
 			for (auto& stellarObject : stellarObjects)
 			{
 				stellarObject.updateRotation(realTimeElapsed * daysPerSecond);
@@ -199,31 +184,24 @@ int main()
 			}
 		}
 
-
-		// Handles camera inputs
+		// update camera
 		camera.getInputs(window);
-		// Updates and exports the camera matrix to the Vertex Shader
 		camera.exportToShader(defaultShader, "camMatrix");
 		camera.exportToShader(lightSourceShader, "camMatrix");
 		camera.exportToShader(asteroidShader, "camMatrix");
 
-		// draw the sun and all the planets
+		// draw the sun, planets, satellites/moons
 		for (auto& stellarObject : stellarObjects)
 		{
 			if (stellarObject.m_name == "sun")
 			{
-				// export uniform for update model of the object to the GPU
+				// export model uniform to GPU, then draw
 				stellarObject.exportToShader(lightSourceShader, "model");
-
-				// glUniform4f(glGetUniformLocation(lightSourceShader.m_ID, "lightColor"),
-				//	lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-
-				// finally draw all the objects
 				stellarObject.draw(lightSourceShader);
 			}
 			else
 			{
-				// export uniform for update model of the object to the GPU
+				// export model + light uniforms to GPU, then draw
 				stellarObject.exportToShader(defaultShader, "model");
 
 				glUniform3f(glGetUniformLocation(defaultShader.m_ID, "lightColor"),
@@ -231,7 +209,6 @@ int main()
 				glUniform3f(glGetUniformLocation(defaultShader.m_ID, "lightPosition"),
 					lightPosition.x, lightPosition.y, lightPosition.z);
 
-				// finally draw all the objects
 				stellarObject.draw(defaultShader);
 			}
 		}
@@ -246,18 +223,10 @@ int main()
 		// must swap buffers in order to display back buffer.
 		glfwSwapBuffers(window);
 
-		// take care of all GLFW events
 		glfwPollEvents();
 	}
 
-	// clean up
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	return 0;
-}
-
-// scroll callback for zooming in and out, cannot be part of class since must be function pointer
-void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
-{
-	camera.zoom(yoffset);
 }

@@ -17,7 +17,6 @@ static std::string getFileContents(const char* filename)
 	throw (errno);
 }
 
-// constructor, build the shader from vertex + fragment shaders
 Shader::Shader(const char* vertexFile, const char* fragmentFile)
 {
 	// read the files into strings
@@ -30,14 +29,12 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
 	glCompileShader(vertexShader);
-	// check for errors
 	compileErrors(vertexShader, "VERTEX");
 
 	// create fragment shader object
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
 	glCompileShader(fragmentShader);
-	// checks for errors
 	compileErrors(fragmentShader, "FRAGMENT");
 
 	// create composites shader object
@@ -47,7 +44,6 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	glAttachShader(m_ID, vertexShader);
 	glAttachShader(m_ID, fragmentShader);
 	glLinkProgram(m_ID);
-	// checks for errors
 	compileErrors(m_ID, "PROGRAM");
 
 	// clean up
@@ -56,19 +52,16 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 
 }
 
-// Activates the Shader Program
 void Shader::bind()
 {
 	glUseProgram(m_ID);
 }
 
-// Deletes the Shader Program
 void Shader::unbind()
 {
 	glDeleteProgram(m_ID);
 }
 
-// checks for correct compilation
 void Shader::compileErrors(unsigned int shader, const char* type)
 {
 	// status of compilation

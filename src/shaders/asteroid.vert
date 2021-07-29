@@ -13,18 +13,20 @@ out vec2 texCoord;
 // input matrices needed for 3D viewing
 uniform mat4 camMatrix; // proj * view
 
+// pass to fragmant shader
 out vec3 Normal;
 out vec3 FragPosition;
 
 void main()
 {
-	// determines final position of vertices
-	gl_Position = camMatrix * instanceMatrix * vec4(position, 1.0);
+	vec4 tempPosition = instanceMatrix * vec4(position, 1.0f);
 
-	// assigns texture coordinates to pass to the fragment shader
+	// final vertex position
+	gl_Position = camMatrix * tempPosition;
+
+	FragPosition = vec3(tempPosition);
+
 	texCoord = texCoor;
-
-	FragPosition = vec3(instanceMatrix * vec4(position, 1.0f));
 
 	Normal = mat3(transpose(inverse(instanceMatrix))) * normal;
 }

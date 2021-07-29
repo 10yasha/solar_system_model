@@ -62,10 +62,13 @@ public:
 
 	Skybox(std::string directory);
 
+	// initializes and send vertices and indices data to buffers
 	void initSkybox();
 
+	// fills in array of filepaths
 	void getTexturePaths(std::string directory);
 
+	// uses skybox textures to create cubemap
 	void createCubeMap();
 
 	void draw(Shader& shader, const Camera& camera);

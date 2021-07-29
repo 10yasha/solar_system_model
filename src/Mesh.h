@@ -9,7 +9,6 @@
 #include "Shader.h"
 #include "GLErrors.h"
 
-// vertex
 struct Vertex
 {
 	glm::vec3 Position;
@@ -17,7 +16,6 @@ struct Vertex
 	glm::vec3 Normal;
 };
 
-// texture 
 struct Texture
 {
 	unsigned int ID;
@@ -33,6 +31,7 @@ public:
 	std::vector<unsigned int> m_indices;
 	Texture m_texture;
 
+	// number of instances to draw together, 1 if not instanced draw call
 	int m_instancing;
 
 	// openGL IDs
@@ -45,6 +44,5 @@ public:
 	// sets up the mesh
 	void initMesh(const float number = 1, std::vector<glm::mat4> instanceMatrix = {});
 
-	// draw call based on shader
 	void draw(Shader& shader);
 };

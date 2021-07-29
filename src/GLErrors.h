@@ -6,7 +6,7 @@
 
 /*
 * This file defines macros to flush out openGL errors, used for debugging
-* GLCall() is used to run statements to determine error values which can be found are defined in "glad.c"
+* GLCall() is used to run statements to determine error values which can are defined in "glad.c"
 * in hexadecimal
 */
 

@@ -13,7 +13,7 @@
 class Camera
 {
 public:
-	// vectors for the glm::lookAt() function
+	// vectors for glm::lookAt() function
 	glm::vec3 m_position;
 	glm::vec3 m_orientation;
 	glm::vec3 m_upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -30,22 +30,21 @@ public:
 	float m_sensitivity = 100.f;
 	float m_zoomSpeed = 10.f;
 
-	// scaling to control speed and zoom speed
+	// scaling to interactively control speed and zoom speed
 	float movementMag = 1.f;
 
-	// prevents the camera from jumping around when first clicking
+	// flag to prevent camera from jumping around when first clicking
 	bool m_firstClick = true;
 
-	// constructor
 	Camera(int width, int height, float FOVdeg, float nearPlane, float farPlane,
 		glm::vec3 position, glm::vec3 orientation);
 
-	// zoom
+	// zoom based on mouse scroll
 	void zoom(double yoffset);
 
-	// updates and exports the camera matrix to vertex shader
+	// exports the camera matrix to vertex shader
 	void exportToShader(Shader& shader, const char* uniform);
 
-	// handles inputs from keyboard and mouse
+	// handles inputs from keyboard and mouse other than mouse scroll
 	void getInputs(GLFWwindow* window);
 };
