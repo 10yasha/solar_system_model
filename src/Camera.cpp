@@ -56,6 +56,11 @@ void Camera::getInputs(GLFWwindow* window)
 	{
 		movementMag /= 1.1f;
 	}
+	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+	{
+		enableOrbitalMotion = !enableOrbitalMotion;
+	}
+		
 
 
 	// mouse inputs to drag screen

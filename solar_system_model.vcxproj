@@ -527,6 +527,7 @@
     <ClInclude Include="Libraries\include\stb\stb_image.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\GLErrors.h" />
+    <ClInclude Include="src\GUIParams.h" />
     <ClInclude Include="src\StellarObject.h" />
     <ClInclude Include="src\LoadModel.h" />
     <ClInclude Include="src\Mesh.h" />
