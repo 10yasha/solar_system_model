@@ -9,7 +9,12 @@ Camera::Camera(int width, int height, float FOVdeg, float nearPlane, float farPl
 
 void Camera::zoom(double yoffset)
 {
-	m_position += float(yoffset) * m_zoomSpeed * m_orientation * movementMag;
+	m_position += float(yoffset) * m_zoomSpeed * m_orientation * m_sensitivity;
+}
+
+void Camera::updateSensitivity(int movementSensitivity)
+{
+	m_sensitivity = std::pow(1.2f, movementSensitivity);
 }
 
 void Camera::exportToShader(Shader& shader, const char* uniform)
@@ -34,78 +39,84 @@ void Camera::getInputs(GLFWwindow* window)
 	// all key inputs handled
 	if ((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS))
 	{
-		m_position += m_speed * movementMag * glm::normalize(glm::cross(glm::cross(m_orientation, m_upDirection), m_orientation));
+		m_position += m_speed * m_sensitivity * glm::normalize(glm::cross(glm::cross(m_orientation, m_upDirection), m_orientation));
 	}
 	if ((glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS))
 	{
-		m_position += m_speed * movementMag * -glm::normalize(glm::cross(m_orientation, m_upDirection));
+		m_position += m_speed * m_sensitivity * -glm::normalize(glm::cross(m_orientation, m_upDirection));
 	}
 	if ((glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS))
 	{
-		m_position += m_speed * movementMag * -glm::normalize(glm::cross(glm::cross(m_orientation, m_upDirection), m_orientation));
+		m_position += m_speed * m_sensitivity * -glm::normalize(glm::cross(glm::cross(m_orientation, m_upDirection), m_orientation));
 	}
 	if ((glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS))
 	{
-		m_position += m_speed * movementMag * glm::normalize(glm::cross(m_orientation, m_upDirection));
+		m_position += m_speed * m_sensitivity * glm::normalize(glm::cross(m_orientation, m_upDirection));
 	}
 	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
 	{
-		movementMag *= 1.1f;
+		m_sensitivity *= 1.1f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
 	{
-		movementMag /= 1.1f;
+		m_sensitivity /= 1.1f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
 	{
 		enableOrbitalMotion = !enableOrbitalMotion;
 	}
-		
-
-
-	// mouse inputs to drag screen
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
 	{
-		// hides the mouse
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-		// use a flag to prevent camera from jumping on first click
-		if (m_firstClick)
-		{
-			glfwSetCursorPos(window, (m_width / 2), (m_height / 2));
-			m_firstClick = false;
-		}
-
-		// cursor coordinates
-		double mouseX;
-		double mouseY;
-		glfwGetCursorPos(window, &mouseX, &mouseY);
-
-		// noormalizes and set mouse coordinates to begin in the middle of the screen
-		float rotX = m_sensitivity * (float)(mouseY - (m_height / 2)) / m_height;
-		float rotY = m_sensitivity * (float)(mouseX - (m_width / 2)) / m_width;
-
-		// calculates vertical change in the orientation
-		glm::vec3 newOrientation = glm::rotate(m_orientation, glm::radians(rotX), 
-			glm::normalize(glm::cross(m_orientation, m_upDirection)));
-
-		// limit range of orientation angle in respect to up vector between +/- 85 degrees
-		if (abs(glm::angle(newOrientation, m_upDirection) - glm::radians(90.0f)) <= glm::radians(85.0f))
-		{
-			m_orientation = newOrientation;
-		}
-
-		m_orientation = glm::rotate(m_orientation, glm::radians(rotY), m_upDirection);
-
-		// move mouse back to middle of screen
-		glfwSetCursorPos(window, (m_width / 2), (m_height / 2));
+		enableRotationalMotion = !enableRotationalMotion;
 	}
-	else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+	
+	// make sure that only allow user to drag mouse when not hovering/focused on gui window
+	if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) && !ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow))
 	{
-		// displays mouse again
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		// mouse inputs to drag screen
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		{
+			// hides the mouse
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
-		// reset first click flag, to ensure stability
-		m_firstClick = true;
+			// use a flag to prevent camera from jumping on first click
+			if (m_firstClick)
+			{
+				glfwSetCursorPos(window, (m_width / 2), (m_height / 2));
+				m_firstClick = false;
+			}
+
+			// cursor coordinates
+			double mouseX;
+			double mouseY;
+			glfwGetCursorPos(window, &mouseX, &mouseY);
+
+			// normalizes and set mouse coordinates to begin in the middle of the screen
+			float rotX = m_mouseDragScale * (float)(mouseY - (m_height / 2)) / m_height;
+			float rotY = m_mouseDragScale * (float)(mouseX - (m_width / 2)) / m_width;
+
+			// calculates vertical change in the orientation
+			glm::vec3 newOrientation = glm::rotate(m_orientation, glm::radians(rotX),
+				glm::normalize(glm::cross(m_orientation, m_upDirection)));
+
+			// limit range of orientation angle in respect to up vector between +/- 85 degrees
+			if (abs(glm::angle(newOrientation, m_upDirection) - glm::radians(90.0f)) <= glm::radians(85.0f))
+			{
+				m_orientation = newOrientation;
+			}
+
+			m_orientation = glm::rotate(m_orientation, glm::radians(rotY), m_upDirection);
+
+			// move mouse back to middle of screen
+			glfwSetCursorPos(window, (m_width / 2), (m_height / 2));
+		}
+		else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+		{
+			// displays mouse again
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+			// reset first click flag, to ensure stability
+			m_firstClick = true;
+		}
 	}
 }

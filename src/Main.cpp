@@ -4,6 +4,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_impl_glfw.h"
 
 #include <math.h>
 #include <iostream>
@@ -43,8 +46,10 @@ Camera camera(WIDTH, HEIGHT, 45.f, 0.1f, 10000.f, glm::vec3(133.887, 84.8933, 75
 	glm::vec3(-0.496603, -0.391775, -0.774533));
 
 // globals in GUIParams.h
-double daysPerSecond = 0.2f;
+float daysPerSecond = 0.2f;
 bool enableOrbitalMotion = false;
+bool enableRotationalMotion = true;
+int movementSensitivity = 0;
 
 int main()
 {
@@ -74,7 +79,7 @@ int main()
 	glm::vec3 lightPosition(0.0f, 0.0f, 0.0f);
 	glm::vec4 lightColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-	// load shaders and link into one program
+	// load and link shaders
 	GLCall(Shader defaultShader("./src/shaders/default.vert", "./src/shaders/default.frag")); // planets/satellites
 	GLCall(Shader skyboxShader("./src/shaders/skybox.vert", "./src/shaders/skybox.frag")); // background
 	GLCall(Shader lightSourceShader("./src/shaders/lightSource.vert", "./src/shaders/lightSource.frag")); // the sun
@@ -94,7 +99,7 @@ int main()
 	auto instanceMatrix = genAsteroidModels(numberAsteroids, radius, radiusDeviation);
 	auto asteroid = loadAsteroidModel("./resources/models/", numberAsteroids, instanceMatrix);
 
-	// planets loaded here
+	// load sun/planets/satellites
 	std::vector<std::unique_ptr<Mesh>> meshes;
 	loadSolarSystemModels("./resources/models/", meshes);
 	std::vector<StellarObject> stellarObjects = initStellarObjects(meshes);
@@ -107,8 +112,20 @@ int main()
 
 	// enable zooming through scroll on mouse
 	// glfwSetScrollCallback(window, scrollCallback);
-	glfwSetScrollCallback(window,
-		[](GLFWwindow* window, double xoffset, double yoffset) { camera.zoom(yoffset); });
+	glfwSetScrollCallback(
+		window,
+		[](GLFWwindow* window, double xoffset, double yoffset) { camera.zoom(yoffset); }
+		);
+
+	// setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	//io.WantCaptureMouse = true;
+	// setup Platform/Renderer bindings
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330 core");
+	ImGui::StyleColorsDark();
 
 	// necessary so depth in 3D models rendered properly
 	glEnable(GL_DEPTH_TEST);
@@ -120,19 +137,33 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// start new frame for imgui
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
 		// update orbital/rotational positions
 		curTime = glfwGetTime();
 		if (curTime - prevTime >= 1 / 60)
 		{
 			double realTimeElapsed = curTime - prevTime;
 			prevTime = curTime;
-
-			for (auto& stellarObject : stellarObjects)
+			
+			if (enableRotationalMotion)
 			{
-				stellarObject.updateRotation(realTimeElapsed * daysPerSecond);
+				for (auto& stellarObject : stellarObjects)
+				{
+					stellarObject.updateRotation(realTimeElapsed * daysPerSecond);
+				}
+			}
 
-				if (stellarObject.m_name != "sun" && enableOrbitalMotion)
-					stellarObject.updatePosition(realTimeElapsed * daysPerSecond);
+			if (enableOrbitalMotion)
+			{
+				for (auto& stellarObject : stellarObjects)
+				{
+					if (stellarObject.m_name != "sun")
+						stellarObject.updatePosition(realTimeElapsed * daysPerSecond);
+				}
 			}
 		}
 
@@ -169,8 +200,22 @@ int main()
 
 		skybox.draw(skyboxShader, camera);
 
-		// there are 2 image buffers, one displayed, and one drawn to.
-		// must swap buffers in order to display back buffer.
+		// imGUI
+		ImGui::Begin("Control");
+		ImGui::SliderInt("Movement Sensitivity", &movementSensitivity, -10, +10);
+		camera.updateSensitivity(movementSensitivity);
+		// ImGui::SliderInt("TranslationB", &translationB.x, 0.f, 960.f);
+		ImGui::InputFloat("days/second", &daysPerSecond, 0.01f, 5.0f, "%.3f");
+		ImGui::Checkbox("Enable Orbital Motion", &enableOrbitalMotion);
+		ImGui::Checkbox("Enable Rotational Motion", &enableRotationalMotion);
+		ImGui::Text("Average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::End();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		// there are 2 image buffers, one displayed, and one drawn to
+		// must swap buffers in order to display image drawn (to back buffer)
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
@@ -185,6 +230,9 @@ std::vector<glm::mat4> genAsteroidModels(const unsigned int numberAsteroids, dou
 {
 	// holds different transformations for each asteroid
 	std::vector<glm::mat4> instanceMatrix;
+
+	// additional scaling
+	glm::mat4 addScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f)); 
 
 	for (unsigned int i = 0; i < numberAsteroids; i++)
 	{
@@ -215,7 +263,6 @@ std::vector<glm::mat4> genAsteroidModels(const unsigned int numberAsteroids, dou
 		glm::mat4 trans = glm::translate(glm::mat4(1.0f), tempTranslation);
 		glm::mat4 rot = glm::mat4_cast(tempRotation);
 		glm::mat4 sca = glm::scale(glm::mat4(1.0f), tempScale);
-		glm::mat4 addScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f)); // additional scaling
 
 		instanceMatrix.push_back(trans * rot * sca * addScale);
 	}

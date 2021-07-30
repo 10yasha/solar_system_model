@@ -7,6 +7,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_impl_glfw.h"
 
 #include "Shader.h"
 #include "GUIParams.h"
@@ -28,11 +31,11 @@ public:
 
 	// constant to control movement of camera
 	float m_speed = 0.5f;
-	float m_sensitivity = 100.f;
+	float m_mouseDragScale = 100.f;
 	float m_zoomSpeed = 10.f;
 
 	// scaling to interactively control speed and zoom speed
-	float movementMag = 1.f;
+	float m_sensitivity = 1.f;
 
 	// flag to prevent camera from jumping around when first clicking
 	bool m_firstClick = true;
@@ -42,6 +45,9 @@ public:
 
 	// zoom based on mouse scroll
 	void zoom(double yoffset);
+
+	// updates sensitivity of scroll/wasd movement
+	void updateSensitivity(int movementSensitivity);
 
 	// exports the camera matrix to vertex shader
 	void exportToShader(Shader& shader, const char* uniform);
