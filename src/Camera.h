@@ -16,6 +16,18 @@
 
 class Camera
 {
+private:
+	// constant to control movement of camera
+	float m_speed = 0.5f;
+	float m_mouseDragScale = 100.f;
+	float m_zoomSpeed = 10.f;
+
+	// scaling to interactively control speed and zoom speed
+	float m_sensitivity = 1.f;
+
+	// flag to prevent camera from jumping around when first clicking
+	bool m_firstClick = true;
+
 public:
 	// vectors for glm::lookAt() function
 	glm::vec3 m_position;
@@ -28,17 +40,6 @@ public:
 	// dimensions of the window
 	int m_width;
 	int m_height;
-
-	// constant to control movement of camera
-	float m_speed = 0.5f;
-	float m_mouseDragScale = 100.f;
-	float m_zoomSpeed = 10.f;
-
-	// scaling to interactively control speed and zoom speed
-	float m_sensitivity = 1.f;
-
-	// flag to prevent camera from jumping around when first clicking
-	bool m_firstClick = true;
 
 	Camera(int width, int height, float FOVdeg, float nearPlane, float farPlane,
 		glm::vec3 position, glm::vec3 orientation);

@@ -13,6 +13,10 @@ static std::string getFileContents(const char* filename);
 
 class Shader
 {
+private:
+	// checks for correct compilation
+	void compileErrors(unsigned int shader, const char* type);
+
 public:
 	unsigned int m_ID;
 
@@ -21,7 +25,4 @@ public:
 
 	void bind();
 	void unbind();
-
-	// checks for correct compilation
-	void compileErrors(unsigned int shader, const char* type);
 };

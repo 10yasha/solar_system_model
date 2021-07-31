@@ -10,6 +10,7 @@
 
 #include "Mesh.h"
 #include "GLErrors.h"
+#include "OrbitalEllipse.h"
 
 #define PI 3.1415926
 
@@ -23,15 +24,25 @@ StellarObject* getPtrToStellarObject(std::vector<StellarObject>& stellarObjects,
 
 class StellarObject
 {
-public:
-	std::string m_name;
+private:
 	double m_axialTilt, m_rotationSpeed, m_objectRadius, m_lengthOfYear;
 	double m_a, m_b;
-	glm::mat4 m_locMat;
+	
 	double m_curObjectRotation;
 	double m_curOrbitalRotation;
-	std::string m_orbitalFocus;
 	std::unique_ptr<Mesh> m_mesh;
+
+public:
+	std::string m_name;
+
+	// current location matrix
+	glm::mat4 m_locMat;
+	
+	// mesh for orbital trajectory (not triangles, but line segments)
+	std::unique_ptr<OrbitalEllipse> m_orbitalEllipse;
+
+	// object around which this one orbits
+	std::string m_orbitalFocus;
 
 	// using raw ptr, objects were created with std::make_unique, are destructed elsewhere so no clean up
 	StellarObject* m_orbitalFocusPtr;

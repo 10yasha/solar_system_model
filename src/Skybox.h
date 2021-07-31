@@ -14,7 +14,7 @@
 
 class Skybox
 {
-public:
+private:
 	std::string m_cubemapPaths[6];
 
 	// vertices for the skybox
@@ -60,8 +60,6 @@ public:
 	// cubemap texture ID
 	unsigned int m_cubemapTexID;
 
-	Skybox(std::string directory);
-
 	// initializes and send vertices and indices data to buffers
 	void initSkybox();
 
@@ -70,6 +68,9 @@ public:
 
 	// uses skybox textures to create cubemap
 	void createCubeMap();
+
+public:
+	Skybox(std::string directory);
 
 	void draw(Shader& shader, const Camera& camera);
 };
