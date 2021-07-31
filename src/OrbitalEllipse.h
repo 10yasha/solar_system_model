@@ -12,10 +12,7 @@
 
 #define PI 3.1415926
 #define NUM_VERTICES 1000
-
-class OrbitalEllipse
-{
-private:
+class OrbitalEllipse {
     // openGL IDs
     unsigned int m_VAO, m_VBO, m_EBO, m_instanceVBO;
 
