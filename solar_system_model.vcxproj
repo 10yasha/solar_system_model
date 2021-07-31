@@ -528,6 +528,7 @@
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\GLErrors.h" />
     <ClInclude Include="src\GUIParams.h" />
+    <ClInclude Include="src\OrbitalEllipse.h" />
     <ClInclude Include="src\StellarObject.h" />
     <ClInclude Include="src\LoadModel.h" />
     <ClInclude Include="src\Mesh.h" />
@@ -712,6 +713,8 @@
     <None Include="src\shaders\default.vert" />
     <None Include="src\shaders\lightSource.frag" />
     <None Include="src\shaders\lightSource.vert" />
+    <None Include="src\shaders\orbit.frag" />
+    <None Include="src\shaders\orbit.vert" />
     <None Include="src\shaders\skybox.frag" />
     <None Include="src\shaders\skybox.vert" />
   </ItemGroup>

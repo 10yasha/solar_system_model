@@ -126,9 +126,11 @@ StellarObject::StellarObject(std::string name, std::string orbitalFocus,
 	m_curOrbitalRotation = startingAngle; // default value
 
 	// starting position
-	float x = a * sin(PI * 2 * m_curOrbitalRotation / 360);
-	float y = b * cos(PI * 2 * m_curOrbitalRotation / 360);
+	float x = a * std::sin(PI * 2 * m_curOrbitalRotation / 360);
+	float y = b * std::cos(PI * 2 * m_curOrbitalRotation / 360);
 	m_locMat = glm::translate(glm::mat4(1), glm::vec3(x, 0.0f, y));
+
+	m_orbitalEllipse = std::make_unique<OrbitalEllipse>(a, b);
 }
 
 StellarObject::~StellarObject()
@@ -154,6 +156,7 @@ StellarObject::StellarObject(StellarObject&& other) noexcept
 	m_orbitalFocusPtr = other.m_orbitalFocusPtr;
 
 	m_mesh = std::move(other.m_mesh);
+	m_orbitalEllipse = std::move(other.m_orbitalEllipse);
 }
 
 void StellarObject::updateModel(double timeElapsed)
@@ -173,8 +176,8 @@ void StellarObject::updatePosition(double timeElapsed)
 	m_curOrbitalRotation += timeElapsed / m_lengthOfYear;
 
 	// TRANSLATION 1 //
-	float x = m_a * sin(PI * 2 * m_curOrbitalRotation);
-	float y = m_b * cos(PI * 2 * m_curOrbitalRotation);
+	float x = m_a * std::sin(PI * 2 * m_curOrbitalRotation);
+	float y = m_b * std::cos(PI * 2 * m_curOrbitalRotation);
 	m_locMat = glm::translate(glm::mat4(1), glm::vec3(x, 0.0f, y));
 }
 

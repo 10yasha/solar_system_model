@@ -17,10 +17,13 @@ uniform vec3 lightPosition;
 
 void main()
 {
-    vec3 norm = normalize(Normal);
-    vec3 lightDirection = normalize(lightPosition - FragPosition);
-    float diff = max(dot(norm, lightDirection), 0.07);
-    vec3 diffuse = lightColor * diff * vec3(texture(tex0, texCoord));
+    // ambient lighting
+	float ambient = 0.07f;
 
-    FragColor = vec4(diffuse, 1.0f);
+	// diffuse lighting
+	vec3 normal = normalize(Normal);
+	vec3 lightDirection = normalize(lightPosition - FragPosition);
+	float diffuse = max(dot(normal, lightDirection), 0.0f);
+
+	FragColor = (texture(tex0, texCoord) * (diffuse + ambient));
 }

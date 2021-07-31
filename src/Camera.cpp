@@ -55,11 +55,13 @@ void Camera::getInputs(GLFWwindow* window)
 	}
 	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
 	{
-		m_sensitivity *= 1.1f;
+		if (movementSensitivity < 10)
+			movementSensitivity++;
 	}
 	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
 	{
-		m_sensitivity /= 1.1f;
+		if (movementSensitivity > -10)
+			movementSensitivity--;
 	}
 	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
 	{

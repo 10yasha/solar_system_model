@@ -19,6 +19,7 @@
 #include "Skybox.h"
 #include "GLErrors.h"
 #include "GUIParams.h"
+#include "OrbitalEllipse.h"
 
 // window size
 #define WIDTH 1500
@@ -49,6 +50,7 @@ Camera camera(WIDTH, HEIGHT, 45.f, 0.1f, 10000.f, glm::vec3(133.887, 84.8933, 75
 float daysPerSecond = 0.2f;
 bool enableOrbitalMotion = false;
 bool enableRotationalMotion = true;
+bool enableOrbitalPath = false;
 int movementSensitivity = 0;
 
 int main()
@@ -84,12 +86,14 @@ int main()
 	GLCall(Shader skyboxShader("./src/shaders/skybox.vert", "./src/shaders/skybox.frag")); // background
 	GLCall(Shader lightSourceShader("./src/shaders/lightSource.vert", "./src/shaders/lightSource.frag")); // the sun
 	GLCall(Shader asteroidShader("./src/shaders/asteroid.vert", "./src/shaders/asteroid.frag")); // asteroid belt
+	GLCall(Shader orbitShader("./src/shaders/orbit.vert", "./src/shaders/orbit.frag")); // orbit trajectory
 	
 	glUniform3f(glGetUniformLocation(asteroidShader.m_ID, "lightColor"),
 		lightColor.x, lightColor.y, lightColor.z);
 	glUniform3f(glGetUniformLocation(asteroidShader.m_ID, "lightPosition"),
 		lightPosition.x, lightPosition.y, lightPosition.z);
 
+	auto orbit = OrbitalEllipse(350.f, 350.f);
 
 	// generated randomized asteroids for asteroid belt, instancing enabled
 	const unsigned int numberAsteroids = 500;
@@ -121,7 +125,6 @@ int main()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
-	//io.WantCaptureMouse = true;
 	// setup Platform/Renderer bindings
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
@@ -172,6 +175,7 @@ int main()
 		camera.exportToShader(defaultShader, "camMatrix");
 		camera.exportToShader(lightSourceShader, "camMatrix");
 		camera.exportToShader(asteroidShader, "camMatrix");
+		camera.exportToShader(orbitShader, "camMatrix");
 
 		// draw the sun, planets, satellites/moons
 		for (auto& stellarObject : stellarObjects)
@@ -193,6 +197,11 @@ int main()
 					lightPosition.x, lightPosition.y, lightPosition.z);
 
 				stellarObject.draw(defaultShader);
+
+				if (enableOrbitalPath)
+				{
+					stellarObject.m_orbitalEllipse->draw(orbitShader, stellarObject.m_orbitalFocusPtr->m_locMat);
+				}
 			}
 		}
 
@@ -204,11 +213,12 @@ int main()
 		ImGui::Begin("Control");
 		ImGui::SliderInt("Movement Sensitivity", &movementSensitivity, -10, +10);
 		camera.updateSensitivity(movementSensitivity);
-		// ImGui::SliderInt("TranslationB", &translationB.x, 0.f, 960.f);
 		ImGui::InputFloat("days/second", &daysPerSecond, 0.01f, 5.0f, "%.3f");
 		ImGui::Checkbox("Enable Orbital Motion", &enableOrbitalMotion);
 		ImGui::Checkbox("Enable Rotational Motion", &enableRotationalMotion);
+		ImGui::Checkbox("Enable Orbital Path Marker", &enableOrbitalPath);
 		ImGui::Text("Average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::Text("\nControls: WASD/up-left-down-right keys; zoom & drag with mouse");
 		ImGui::End();
 
 		ImGui::Render();

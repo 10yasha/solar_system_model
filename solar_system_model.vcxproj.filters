@@ -1155,6 +1155,9 @@
     <ClInclude Include="src\GUIParams.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\OrbitalEllipse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\glad.c">
@@ -1660,5 +1663,7 @@
     <None Include="src\shaders\lightSource.vert" />
     <None Include="src\shaders\asteroid.vert" />
     <None Include="src\shaders\asteroid.frag" />
+    <None Include="src\shaders\orbit.frag" />
+    <None Include="src\shaders\orbit.vert" />
   </ItemGroup>
 </Project>

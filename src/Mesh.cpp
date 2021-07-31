@@ -35,12 +35,6 @@ void Mesh::initMesh(const float number, std::vector<glm::mat4> instanceMatrix)
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), &m_vertices[0], GL_STATIC_DRAW));
 
-	// index buffer
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO));
-	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_STATIC_DRAW));
-
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
-
 	// layout
 	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0));
 	GLCall(glEnableVertexAttribArray(0));
@@ -48,6 +42,10 @@ void Mesh::initMesh(const float number, std::vector<glm::mat4> instanceMatrix)
 	GLCall(glEnableVertexAttribArray(1));
 	GLCall(glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal)));
 	GLCall(glEnableVertexAttribArray(2));
+
+	// index buffer
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO));
+	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_STATIC_DRAW));
 
 	// in the case of instanced drawing, set up additional buffers
 	if (number != 1)

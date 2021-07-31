@@ -10,6 +10,7 @@
 
 #include "Mesh.h"
 #include "GLErrors.h"
+#include "OrbitalEllipse.h"
 
 #define PI 3.1415926
 
@@ -32,6 +33,7 @@ public:
 	double m_curOrbitalRotation;
 	std::string m_orbitalFocus;
 	std::unique_ptr<Mesh> m_mesh;
+	std::unique_ptr<OrbitalEllipse> m_orbitalEllipse;
 
 	// using raw ptr, objects were created with std::make_unique, are destructed elsewhere so no clean up
 	StellarObject* m_orbitalFocusPtr;
