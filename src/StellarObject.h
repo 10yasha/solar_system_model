@@ -31,7 +31,6 @@ private:
 	double m_curObjectRotation;
 	double m_curOrbitalRotation;
 	std::unique_ptr<Mesh> m_mesh;
-	std::unique_ptr<OrbitalEllipse> m_orbitalEllipse;
 
 public:
 	std::string m_name;
