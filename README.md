@@ -13,7 +13,7 @@ So everything is much closer or it makes for a boring simulation
 - collapsable user interface to toggle different display and simulation elements
 
 ### Screenshots
-![1](https://github.com/10yasha/solar_system_model/tree/main/resources/screenshots/1.png)
-![2](https://github.com/10yasha/solar_system_model/tree/main/resources/screenshots/2.png)
-![3](https://github.com/10yasha/solar_system_model/tree/main/resources/screenshots/3.png)
-![4](https://github.com/10yasha/solar_system_model/tree/main/resources/screenshots/4.png)
+![](resources/screenshots/1.png)
+![](resources/screenshots/2.png)
+![](resources/screenshots/3.png)
+![](resources/screenshots/4.png)
