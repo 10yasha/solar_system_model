@@ -44,14 +44,14 @@ std::vector<StellarObject> initStellarObjects(std::vector<std::unique_ptr<Mesh>>
 	std::tuple<double, double> ellipseParams[15] =
 	{
 		std::make_tuple(0.0f, 0.0f),
-		std::make_tuple(320.0f, 320.0f),
-		std::make_tuple(335.0f, 335.0f),
-		std::make_tuple(350.0f, 350.0f),
-		std::make_tuple(365.0f, 365.0f),
-		std::make_tuple(500.0f, 500.0f),
-		std::make_tuple(600.0f, 600.0f),
-		std::make_tuple(680.0f, 680.0f),
-		std::make_tuple(720.0f, 720.0f),
+		std::make_tuple(340.0f, 340.0f),
+		std::make_tuple(380.0f, 380.0f),
+		std::make_tuple(420.0f, 420.0f),
+		std::make_tuple(460.0f, 460.0f),
+		std::make_tuple(650.0f, 650.0f),
+		std::make_tuple(800.0f, 800.0f),
+		std::make_tuple(900.0f, 900.0f),
+		std::make_tuple(970.0f, 970.0f),
 		std::make_tuple(5.0f, 5.0f),
 		std::make_tuple(40.0f, 40.0f),
 		std::make_tuple(40.0f, 40.0f),
@@ -175,11 +175,11 @@ void StellarObject::updateRotation(double timeElapsed)
 
 void StellarObject::updatePosition(double timeElapsed)
 {
-	m_curOrbitalRotation += timeElapsed / m_lengthOfYear;
+	m_curOrbitalRotation += timeElapsed / m_lengthOfYear * 360;
 
 	// TRANSLATION 1 //
-	float x = m_a * std::sin(PI * 2 * m_curOrbitalRotation);
-	float y = m_b * std::cos(PI * 2 * m_curOrbitalRotation);
+	float x = m_a * std::sin(PI * 2 * m_curOrbitalRotation / 360);
+	float y = m_b * std::cos(PI * 2 * m_curOrbitalRotation / 360);
 	m_locMat = glm::translate(glm::mat4(1), glm::vec3(x, 0.0f, y));
 }
 

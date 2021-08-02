@@ -43,8 +43,8 @@ std::vector<glm::mat4> genAsteroidModels(const unsigned int numberAsteroids, dou
 // must create as global, due to having to use callback for scroll wheel which only takes function pointer
 // (as oppposed to class function pointer)
 // it was between a global or a singleton, they're both bad... I guess I'd rather a global than a singleton xD
-Camera camera(WIDTH, HEIGHT, 45.f, 0.1f, 10000.f, glm::vec3(133.887, 84.8933, 759.807),
-	glm::vec3(-0.496603, -0.391775, -0.774533));
+Camera camera(WIDTH, HEIGHT, 45.f, 0.1f, 10000.f, glm::vec3(215.658, 141.441, 1122.28),
+	glm::vec3(-0.382241, -0.26202, -0.886138));
 
 // globals in GUIParams.h
 float daysPerSecond = 0.2f;
@@ -95,8 +95,8 @@ int main()
 
 	// generated randomized asteroids for asteroid belt, instancing enabled
 	const unsigned int numberAsteroids = 500;
-	float radius = 400.0f;
-	float radiusDeviation = 25.0f;
+	float radius = 530.0f;
+	float radiusDeviation = 40.0f;
 
 	auto instanceMatrix = genAsteroidModels(numberAsteroids, radius, radiusDeviation);
 	auto asteroid = loadAsteroidModel("./resources/models/", numberAsteroids, instanceMatrix);
@@ -209,7 +209,7 @@ int main()
 
 		// imGUI
 		ImGui::Begin("Control");
-		ImGui::SliderInt("Movement Sensitivity", &movementSensitivity, -10, +10);
+		ImGui::SliderInt("Movement Sensitivity", &movementSensitivity, -15, +15);
 		camera.updateSensitivity(movementSensitivity);
 		ImGui::InputFloat("days/second", &daysPerSecond, 0.01f, 5.0f, "%.3f");
 		ImGui::Checkbox("Enable Orbital Motion", &enableOrbitalMotion);
@@ -246,7 +246,7 @@ std::vector<glm::mat4> genAsteroidModels(const unsigned int numberAsteroids, dou
 	{
 		// using equation x^2 + y^2 = radius^2 (circle)
 		float x = randfloat(); // -1 to 1
-		float finalRadius = radius + randfloat() * radiusDeviation; // 375 to 425
+		float finalRadius = radius + randfloat() * radiusDeviation;
 		float y = ((rand() % 2) * 2 - 1) * sqrt(1.0f - x * x); // +/- sqrt(1-x^2) -> -1 to 1
 
 		glm::vec3 tempTranslation;

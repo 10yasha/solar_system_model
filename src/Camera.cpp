@@ -29,8 +29,8 @@ void Camera::exportToShader(Shader& shader, const char* uniform)
 	glUniformMatrix4fv(glGetUniformLocation(shader.m_ID, uniform), 1, GL_FALSE, glm::value_ptr(projection * view));
 
 	// to debug current camera position
-	//std::cout << m_position.x << " " << m_position.y << " " << m_position.z << " " << 
-	//	m_orientation.x << " " << m_orientation.y << " " << m_orientation.z << " " << std::endl;
+	/*std::cout << m_position.x << " " << m_position.y << " " << m_position.z << " " << 
+		m_orientation.x << " " << m_orientation.y << " " << m_orientation.z << " " << std::endl;*/
 }
 
 
@@ -55,12 +55,12 @@ void Camera::getInputs(GLFWwindow* window)
 	}
 	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
 	{
-		if (movementSensitivity < 10)
+		if (movementSensitivity < 15)
 			movementSensitivity++;
 	}
 	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
 	{
-		if (movementSensitivity > -10)
+		if (movementSensitivity > -15)
 			movementSensitivity--;
 	}
 	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)

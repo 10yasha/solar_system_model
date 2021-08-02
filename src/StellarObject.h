@@ -28,8 +28,9 @@ private:
 	double m_axialTilt, m_rotationSpeed, m_objectRadius, m_lengthOfYear;
 	double m_a, m_b;
 	
-	double m_curObjectRotation;
-	double m_curOrbitalRotation;
+	double m_curObjectRotation; // rotation about itself
+	double m_curOrbitalRotation; // orbit around orbital focus
+	
 	std::unique_ptr<Mesh> m_mesh;
 
 public:
