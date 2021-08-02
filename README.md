@@ -3,8 +3,11 @@
 Implemented with C++17 in Visual Studio 19 using OpenGL library.
 
 This model contains scale-accurate sun/planet/satellite models, an asteroid belt, etc.
-Initially wanted to make distances accurate as well, however real astronomical distances are too vast.
-So everything is much closer or it makes for a boring simulation
+Initially wanted to make distances accurate as well, however real astronomical distances are too vast,
+making for a boring simulation.
+
+### Execution
+The file 'solar_system_model.exe'--compiled for x64 windows OS--can be found under the 'release' directory. 
 
 ### Controls
 - W/A/S/D or up/down/left/right keys to translate view.
